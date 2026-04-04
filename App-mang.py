@@ -229,10 +229,7 @@ class FinalBahjatHandler(http.server.SimpleHTTPRequestHandler):
     def redirect(self, p): self.send_response(303); self.send_header('Location', p); self.end_headers()
 
 # --- جزء التشغيل المطور للسحابة ---
-if __name__ == '__main__':
-    # الحصول على المنفذ تلقائياً من الاستضافة أو استخدام 8080 كافتراضي
-    PORT = int(os.environ.get("PORT", 8080))
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), FinalBahjatHandler) as httpd:
-        print(f"نظام بهجة طيبة V9 يعمل الآن عالمياً على المنفذ: {PORT}")
-        httpd.serve_forever()
+import os
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
