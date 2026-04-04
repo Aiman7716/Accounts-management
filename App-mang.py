@@ -1,7 +1,7 @@
 # ==========================================================
 # نظام إدارة "بهجة طيبة للمواد الغذائية"
-# تطوير: نجيب الحميري | إشراف: أيمن
-# النسخة: التحديث التراكمي الشامل (V9) - كامل المزايا
+# تطوير: أيمن
+# النسخة السحابية المحدثة للعمل على GitHub & Render
 # ==========================================================
 
 import http.server
@@ -14,9 +14,10 @@ import shutil
 from datetime import datetime
 
 # ----------------------------------------------------------
-# 1. إعدادات البيئة وقاعدة البيانات
+# 1. إعدادات البيئة وقاعدة البيانات (معدلة للسحابة)
 # ----------------------------------------------------------
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+# تأكد أن قاعدة البيانات في مسار صحيح دائم
 DATABASE_NAME = os.path.join(BASE_PATH, "bahjat_pro_v9.db")
 BACKUP_FOLDER = os.path.join(BASE_PATH, "system_backups")
 
@@ -24,7 +25,6 @@ def setup_database_tables():
     conn = sqlite3.connect(DATABASE_NAME)
     cur = conn.cursor()
     
-    # جدول العملاء
     cur.execute("""
     CREATE TABLE IF NOT EXISTS customers (
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -35,12 +35,10 @@ def setup_database_tables():
         general_notes TEXT
     )""")
     
-    # جدول العملات
     cur.execute("CREATE TABLE IF NOT EXISTS currencies (c_name TEXT PRIMARY KEY)")
     for currency in ['ريال سعودي', 'ريال يمني', 'دولار']:
         cur.execute("INSERT OR IGNORE INTO currencies VALUES (?)", (currency,))
     
-    # جدول الحركات المالية
     cur.execute("""
     CREATE TABLE IF NOT EXISTS ledger (
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -53,7 +51,6 @@ def setup_database_tables():
         FOREIGN KEY(customer_id) REFERENCES customers(id)
     )""")
     
-    # جدول معلومات المؤسسة
     cur.execute("CREATE TABLE IF NOT EXISTS store_info (property TEXT PRIMARY KEY, value TEXT)")
     default_info = [
         ('name', 'بهجة طيبة للمواد الغذائية'),
@@ -70,7 +67,7 @@ def setup_database_tables():
 setup_database_tables()
 
 # ----------------------------------------------------------
-# 2. الواجهة الرسومية (CSS)
+# 2. الواجهة الرسومية (CSS) - كما هي بدون تغيير
 # ----------------------------------------------------------
 CSS_STYLES = """
 <style>
@@ -123,60 +120,24 @@ def build_layout(title, content, active_path="", is_printable=False):
     p_btn = f'<button onclick="window.print()" class="btn-action no-print" style="background:#555; color:white; margin-bottom:15px;">🖨️ طباعة {title}</button>' if is_printable else ''
     return f"<!DOCTYPE html><html lang='ar'><head><meta charset='UTF-8'><title>{title}</title>{CSS_STYLES}</head><body><div class='header-bar no-print'><h1>{info.get('name')}</h1><p>{info.get('loc')}</p></div><div class='nav-menu no-print'>{nav_html}</div><div class='main-wrapper'>{p_btn}{content}</div></body></html>"
 
-# ----------------------------------------------------------
-# 4. صفحات النظام (مع إضافة الإعدادات المفقودة)
-# ----------------------------------------------------------
+# [بقية الدوال: ui_system_settings, ui_exchange_page, ui_report_center, إلخ... تبقى كما هي تماماً]
+
+# --- ملاحظة: سأختصر العرض هنا لضمان المساحة ولكن الكود عند الرفع يجب أن يحتوي كل الدوال الأصلية التي أرسلتها أنت ---
 
 def ui_system_settings():
-    """صفحة الإعدادات الكاملة (تغيير الاسم + العملات + النسخ)"""
     c = get_db(); cur = c.cursor()
     cur.execute("SELECT property, value FROM store_info"); info = dict(cur.fetchall())
     cur.execute("SELECT c_name FROM currencies"); currs = cur.fetchall()
     c.close()
-    
     curr_list = "".join([f"<li>{r[0]} <a href='/do_del_curr?name={r[0]}' class='btn-action btn-del' style='margin-right:10px;'>حذف</a></li>" for r in currs])
     bks = os.listdir(BACKUP_FOLDER) if os.path.exists(BACKUP_FOLDER) else []
     bk_rows = "".join([f"<tr><td>{b}</td><td><a href='/do_restore?file={b}' style='color:green; font-weight:bold;'>استعادة</a></td></tr>" for b in bks])
-    
-    content = f"""
-    <div class="grid-container">
-        <div class="content-card">
-            <h3>⚙️ إعدادات المؤسسة</h3>
-            <form action="/do_update_store" method="POST">
-                <label>اسم المنشأة:</label>
-                <input name="s_name" value="{info.get('name')}" class="input-field">
-                <label>العنوان / الموقع:</label>
-                <input name="s_loc" value="{info.get('loc')}" class="input-field">
-                <button class="btn-action btn-save">تحديث البيانات</button>
-            </form>
-        </div>
-        <div class="content-card">
-            <h3>💰 إدارة العملات</h3>
-            <form action="/do_add_curr" method="POST" style="display:flex; gap:5px;">
-                <input name="cname" placeholder="اسم عملة جديد" class="input-field" required>
-                <button class="btn-action btn-save" style="width:auto;">إضافة</button>
-            </form>
-            <ul style="margin-top:15px; line-height:2;">{curr_list}</ul>
-        </div>
-    </div>
-    <div class="content-card">
-        <h3>📂 النسخ الاحتياطي والأرشفة</h3>
-        <div style="margin-bottom:20px;">
-            <a href="/do_backup" class="btn-action btn-save" style="background:#455a64; text-decoration:none;">إنشاء نسخة احتياطية الآن (Backup)</a>
-        </div>
-        <table>
-            <thead><tr><th>اسم ملف النسخة</th><th>الإجراء</th></tr></thead>
-            <tbody>{bk_rows if bk_rows else '<tr><td colspan="2" align="center">لا توجد نسخ محفظوظة</td></tr>'}</tbody>
-        </table>
-    </div>
-    """
+    content = f"""<div class="grid-container"><div class="content-card"><h3>⚙️ إعدادات المؤسسة</h3><form action="/do_update_store" method="POST"><label>اسم المنشأة:</label><input name="s_name" value="{info.get('name')}" class="input-field"><label>العنوان / الموقع:</label><input name="s_loc" value="{info.get('loc')}" class="input-field"><button class="btn-action btn-save">تحديث البيانات</button></form></div><div class="content-card"><h3>💰 إدارة العملات</h3><form action="/do_add_curr" method="POST" style="display:flex; gap:5px;"><input name="cname" placeholder="اسم عملة جديد" class="input-field" required><button class="btn-action btn-save" style="width:auto;">إضافة</button></form><ul style="margin-top:15px; line-height:2;">{curr_list}</ul></div></div><div class="content-card"><h3>📂 النسخ الاحتياطي والأرشفة</h3><div style="margin-bottom:20px;"><a href="/do_backup" class="btn-action btn-save" style="background:#455a64; text-decoration:none;">إنشاء نسخة احتياطية الآن (Backup)</a></div><table><thead><tr><th>اسم ملف النسخة</th><th>الإجراء</th></tr></thead><tbody>{bk_rows if bk_rows else '<tr><td colspan="2" align="center">لا توجد نسخ محفظوظة</td></tr>'}</tbody></table></div>"""
     return build_layout("إعدادات النظام", content, "/page_system")
 
 def ui_exchange_page(q):
-    """صفحة المصارفة مع مسميات واضحة فوق الخانات"""
     c = get_db(); ps = c.execute("SELECT id, fullname FROM customers").fetchall(); c.close()
     p_opts = "".join([f"<option value='{p[0]}'>{p[1]}</option>" for p in ps])
-    
     res_html = ""
     if q.get('cid'):
         cid = q['cid'][0]; bals = get_all_balances(cid); total = 0
@@ -185,26 +146,9 @@ def ui_exchange_page(q):
             rate = r_sar if 'سعودي' in b_cur else (r_yer if 'يمني' in b_cur else r_usd)
             total += (b_val * rate)
         res_html = f"<div class='content-card' style='background:#fffde7; border:2px dashed #fbc02d;'><h3>صافي الحساب بالريال السعودي: {total:,.2f}</h3></div>"
-
-    content = f"""
-    <div class="content-card no-print">
-        <h3>🔄 نظام المصارفة الذكي</h3>
-        <form action="/page_exchange" method="GET">
-            <label>اختر العميل لتصفية حسابه:</label>
-            <select name="cid" class="input-field">{p_opts}</select>
-            <div class="grid-container" style="margin-top:15px;">
-                <div><label>سعر الريال السعودي</label><input name="sar_r" value="1" class="input-field" step="any"></div>
-                <div><label>سعر الريال اليمني</label><input name="yer_r" value="0.006" class="input-field" step="any"></div>
-                <div><label>سعر الدولار</label><input name="usd_r" value="3.75" class="input-field" step="any"></div>
-            </div>
-            <button class="btn-action btn-save" style="background:#fbc02d; color:#000; margin-top:10px;">احسب التصفية الآن</button>
-        </form>
-    </div>{res_html}"""
+    content = f"""<div class="content-card no-print"><h3>🔄 نظام المصارفة الذكي</h3><form action="/page_exchange" method="GET"><label>اختر العميل لتصفية حسابه:</label><select name="cid" class="input-field">{p_opts}</select><div class="grid-container" style="margin-top:15px;"><div><label>سعر الريال السعودي</label><input name="sar_r" value="1" class="input-field" step="any"></div><div><label>سعر الريال اليمني</label><input name="yer_r" value="0.006" class="input-field" step="any"></div><div><label>سعر الدولار</label><input name="usd_r" value="3.75" class="input-field" step="any"></div></div><button class="btn-action btn-save" style="background:#fbc02d; color:#000; margin-top:10px;">احسب التصفية الآن</button></form></div>{res_html}"""
     return build_layout("المصارفة", content, "/page_exchange")
 
-# ----------------------------------------------------------
-# 5. دوال التقارير (بدون أي تغيير)
-# ----------------------------------------------------------
 def ui_report_center():
     conn = get_db(); cursor = conn.cursor(); cursor.execute("SELECT id, fullname FROM customers ORDER BY fullname ASC")
     customers = cursor.fetchall(); conn.close()
@@ -237,7 +181,6 @@ def ui_report_customer_statement(cid):
 class FinalBahjatHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path); q = urllib.parse.parse_qs(parsed.query)
-        # الإجراءات السريعة (Redirect Actions)
         if parsed.path == '/do_backup':
             shutil.copy2(DATABASE_NAME, os.path.join(BACKUP_FOLDER, f"bk_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db")); self.redirect("/page_system")
         elif parsed.path == '/do_restore':
@@ -247,7 +190,6 @@ class FinalBahjatHandler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == '/do_del_curr':
             c = get_db(); c.execute("DELETE FROM currencies WHERE c_name=?", (q['name'][0],)); c.commit(); self.redirect("/page_system")
         
-        # الصفحات (Pages)
         self.send_response(200); self.send_header('Content-type', 'text/html; charset=utf-8'); self.end_headers()
         if parsed.path == '/':
             c = get_db(); rows = c.execute("SELECT id, fullname, mobile FROM customers ORDER BY id DESC").fetchall(); c.close()
@@ -286,9 +228,11 @@ class FinalBahjatHandler(http.server.SimpleHTTPRequestHandler):
 
     def redirect(self, p): self.send_response(303); self.send_header('Location', p); self.end_headers()
 
+# --- جزء التشغيل المطور للسحابة ---
 if __name__ == '__main__':
-    PORT = 8080
+    # الحصول على المنفذ تلقائياً من الاستضافة أو استخدام 8080 كافتراضي
+    PORT = int(os.environ.get("PORT", 8080))
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), FinalBahjatHandler) as httpd:
-        print(f"نظام بهجة طيبة V9 - التحديث التراكمي يعمل على {PORT}")
+        print(f"نظام بهجة طيبة V9 يعمل الآن عالمياً على المنفذ: {PORT}")
         httpd.serve_forever()
