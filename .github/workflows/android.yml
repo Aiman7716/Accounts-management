@@ -23,10 +23,11 @@ jobs:
           
       - name: Build with Buildozer
         run: |
+          # هذا الأمر يضمن أن النظام يرى ملف buildozer.spec الذي أنشأته
           yes | buildozer -v android debug
           
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
-          name: Accounting-App
+          name: Accounting-App-APK
           path: bin/*.apk
