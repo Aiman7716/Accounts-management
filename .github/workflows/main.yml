@@ -1,18 +1,27 @@
-[app]
-title = Accounting App
-package.name = accountingapp
-package.domain = org.ayman
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,db
-version = 0.1
-requirements = python3,kivy==2.2.1,sqlite3
-android.permissions = INTERNET
-android.api = 31
-android.minapi = 21
-android.ndk = 23b
-android.private_storage = True
-log_level = 2
+name: Build APK
+on: [push, workflow_dispatch]
 
-[buildozer]
-build_dir = ./.buildozer
-bin_dir = ./bin
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # تحديث لـ v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5 # تحديث لـ v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install buildozer cython==0.29.33
+
+      - name: Build with Buildozer
+        run: yes | buildozer -v android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4 # تحديث لـ v4
+        with:
+          name: Accounting-App
+          path: bin/*.apk
