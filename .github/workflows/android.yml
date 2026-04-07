@@ -1,13 +1,17 @@
 name: Build APK
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "main", "bea5088" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
       - name: Install dependencies
@@ -19,7 +23,7 @@ jobs:
         run: |
           yes | buildozer -v android debug
       - name: Upload APK
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: my-app-apk
+          name: Accounting-App
           path: bin/*.apk
