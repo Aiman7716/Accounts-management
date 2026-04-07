@@ -9,25 +9,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-          
       - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-          pip install --user --upgrade buildozer Cython==0.29.33
-          
+          pip install --upgrade buildozer Cython==0.29.33
       - name: Build with Buildozer
         run: |
-          # هذا الأمر يضمن أن النظام يرى ملف buildozer.spec الذي أنشأته
           yes | buildozer -v android debug
-          
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
-          name: Accounting-App-APK
+          name: App-Package
           path: bin/*.apk
