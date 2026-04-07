@@ -8,17 +8,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4  # تم التحديث من v3 إلى v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # تم التحديث من v4 إلى v5
         with:
           python-version: '3.9'
+
       - name: Install Buildozer
         run: pip install --user --upgrade buildozer Cython==0.29.33
+
       - name: Build with Buildozer
         run: yes | buildozer -v android debug
+
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # تم التحديث من v3 إلى v4
         with:
           name: Accounting-App
           path: bin/*.apk
