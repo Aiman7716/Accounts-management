@@ -3,19 +3,28 @@ on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # تحديد نسخة مستقرة من النظام
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build with Buildozer
-        uses: digreatbabb/buildozer-action@v1.0.1
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          buildozer_version: master
-          command: buildozer -v android debug
-          repository_root: .
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          pip install --upgrade pip
+          pip install buildozer cython==0.29.33 kivy
+
+      - name: Build with Buildozer
+        run: |
+          yes | buildozer -v android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Accounting-App
+          name: App-Output
           path: bin/*.apk
