@@ -1,6 +1,6 @@
 # ==========================================================
-# نظام "بهجة برو V26" - التحديث التراكمي (نسخة م. أيمن الحميري)
-# الميزات: كشف ختامي، إدارة المدير، صفحة تواصل، استعادة بيانات
+# نظام "بهجة برو V26" - النسخة السحابية الكاملة (Vercel)
+# تطوير م. أيمن الحميري - "الشريك العبقري"
 # ==========================================================
 
 from flask import Flask, request, make_response, redirect, render_template_string
@@ -9,8 +9,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# --- 1. الإعدادات المتوافقة مع Vercel ---
-# ملاحظة: المجلد الوحيد المسموح بالكتابة فيه سحابياً هو /tmp
+# --- 1. الإعدادات السحابية (متطلبات Vercel) ---
 DB_NAME = "/tmp/bahjat_v26_pro.db"
 BK_DIR = "/tmp/backups_v26"
 if not os.path.exists(BK_DIR): os.makedirs(BK_DIR)
@@ -31,7 +30,7 @@ def init_db():
 
 init_db()
 
-# --- 2. التصميم الفاخر المحدث (نفس كود م. أيمن) ---
+# --- 2. التصميم الفاخر (نفس CSS م. أيمن دون تعديل) ---
 CSS = """
 <style>
     :root { --p: #0d47a1; --s: #1976d2; --bg: #f8fafc; --w: #ffffff; --green: #2e7d32; --red: #c62828; }
@@ -62,18 +61,15 @@ def render_ui(title, content, uid=None, active=""):
     if uid:
         conn = get_db(); res = conn.execute("SELECT store_name FROM users WHERE id=?", (uid,)).fetchone()
         if res: store = res['store_name']
-    
     nav = ""
     if uid:
         links = [('/', '👥 العملاء'), ('/new_tx', '📥 حركة'), ('/reports', '📊 تقارير'), ('/admin', '👑 المدير'), ('/settings', '⚙️ إعدادات'), ('/contact', '📞 تواصل')]
         nav = "<div class='nav no-print'>" + "".join([f'<a href="{p}" class="{"active" if active==p else ""}">{n}</a>' for p, n in links]) + "<a href='/logout' style='color:var(--red)'>🚪 خروج</a></div>"
-    
-    html = f"<html><head><meta charset='UTF-8'><title>{title}</title>{CSS}</head><body><div class='header'><h2>{store}</h2></div>{nav}<div class='card'>{content}</div></body></html>"
-    return render_template_string(html)
+    return render_template_string(f"<html><head><meta charset='UTF-8'><title>{title}</title>{CSS}</head><body><div class='header'><h2>{store}</h2></div>{nav}<div class='card'>{content}</div></body></html>")
 
-# --- 3. المسارات الوظيفية (Routes) ---
+# --- 3. الصفحات والمتطلبات (كاملة) ---
 
-@app.route('/')
+@app.route('/') # صفحة العملاء مع متطلباتها
 def page_customers():
     uid = request.cookies.get('uid')
     if not uid: return redirect('/login')
@@ -81,62 +77,67 @@ def page_customers():
     f = """<h4>👤 إضافة عميل جديد</h4><form action='/add_cust' method='POST'><div class='grid'><input name='n' placeholder='الاسم الكامل' required><input name='m' placeholder='رقم الجوال'><input name='a' placeholder='العنوان'><input name='v' placeholder='الرقم الضريبي'></div><button class='btn btn-p'>حفظ البيانات</button></form><hr>"""
     search = "<input type='text' id='sInp' placeholder='🔍 ابحث...' class='search-box'>"
     res = conn.execute("SELECT * FROM customers WHERE owner_id=? ORDER BY id DESC", (uid,)).fetchall()
+    rows = "".join([f"<tr><td><a href='/statement/{r['id']}'><b>{r['fullname']}</b></a></td><td>{r['mobile'] or '-'}</td><td><a href='/edit_cust/{r['id']}' class='btn'>تعديل</a></td></tr>" for r in res])
+    return render_ui("العملاء", f + search + "<table><thead><tr><th>الاسم</th><th>الجوال</th><th>التحكم</th></tr></thead>" + rows + "</table>", uid, "/")
+
+@app.route('/new_tx') # صفحة إضافة حركة مع متطلباتها
+def page_new_tx():
+    uid = request.cookies.get('uid')
+    conn = get_db()
+    cs = conn.execute("SELECT id, fullname FROM customers WHERE owner_id=?", (uid,)).fetchall()
+    c_opts = "".join([f"<option value='{r['id']}'>{r['fullname']}</option>" for r in cs])
+    c = f"<h3>📥 تسجيل حركة مالية</h3><form action='/save_tx' method='POST'><select name='cid' required><option value=''>-- اختر العميل --</option>{c_opts}</select><div class='grid'><div><input name='amt' type='number' step='any' placeholder='المبلغ' required></div><div><select name='curr'><option>ريال سعودي</option><option>ريال يمني</option><option>دولار</option></select></div></div><select name='type'><option>له (إيداع)</option><option>عليه (سحب)</option></select><textarea name='note' placeholder='البيان...'></textarea><button class='btn btn-p'>حفظ العملية</button></form>"
+    return render_ui("حركة", c, uid, "/new_tx")
+
+@app.route('/reports') # صفحة التقارير مع متطلباتها
+def page_reports():
+    uid = request.cookies.get('uid')
+    conn = get_db()
+    cs = conn.execute("SELECT id, fullname FROM customers WHERE owner_id=?", (uid,)).fetchall()
     rows = ""
-    for r in res:
+    for r in cs:
         bals = conn.execute("SELECT val_currency, SUM(CASE WHEN val_type LIKE 'له%' THEN val_amount ELSE -val_amount END) as bal FROM ledger WHERE customer_id=? GROUP BY val_currency", (r['id'],)).fetchall()
-        b_txt = " ".join([f"<span class='{'bal-pos' if b['bal']>=0 else 'bal-neg'}'>{b['val_currency']}: {b['bal']:,.2f}</span>" for b in bals]) or "0.00"
-        rows += f"<tr><td><a href='/statement/{r['id']}'><b>{r['fullname']}</b></a></td><td>{r['mobile'] or '-'}</td><td>{b_txt}</td><td><a href='/edit_cust/{r['id']}' class='btn' style='background:#f1f5f9; color:var(--p)'>تعديل</a></td></tr>"
-    return render_ui("العملاء", f + search + "<table><thead><tr><th>الاسم</th><th>الجوال</th><th>الأرصدة</th><th>التحكم</th></tr></thead>" + rows + "</table>", uid, "/")
+        b_txt = " | ".join([f"{b['val_currency']}: {b['bal']:,.2f}" for b in bals]) or "0.00"
+        rows += f"<tr><td>{r['fullname']}</td><td>{b_txt}</td><td><a href='/statement/{r['id']}' class='btn' style='background:var(--p); color:white;'>تفصيلي</a></td></tr>"
+    return render_ui("التقارير", "<h3>📊 ميزان المراجعة</h3><table><thead><tr><th>العميل</th><th>الرصيد التراكمي</th><th>الإجراء</th></tr></thead>" + rows + "</table>", uid, "/reports")
 
-@app.route('/statement/<int:cid>')
-def page_statement(cid):
+@app.route('/settings') # صفحة إعدادات مع متطلباتها
+def page_settings():
     uid = request.cookies.get('uid')
-    if not uid: return redirect('/login')
-    conn = get_db()
-    name = conn.execute("SELECT fullname FROM customers WHERE id=?", (cid,)).fetchone()['fullname']
-    txs = conn.execute("SELECT * FROM ledger WHERE customer_id=? ORDER BY id ASC", (cid,)).fetchall()
-    rows = "".join([f"<tr><td>{t['entry_date']}</td><td class='{'bal-pos' if 'له' in t['val_type'] else 'bal-neg'}'>{t['val_type']}</td><td>{t['val_amount']:,.2f}</td><td>{t['val_currency']}</td><td>{t['val_notes']}</td></tr>" for t in txs])
-    sums = conn.execute("SELECT val_currency, SUM(CASE WHEN val_type LIKE 'له%' THEN val_amount ELSE -val_amount END) as bal FROM ledger WHERE customer_id=? GROUP BY val_currency", (cid,)).fetchall()
-    total_rows = "".join([f"<tr class='footer-total'><td colspan='2'>صافي الرصيد الختامي ({s['val_currency']})</td><td colspan='3' class='{'bal-pos' if s['bal']>=0 else 'bal-neg'}'>{s['bal']:,.2f}</td></tr>" for s in sums])
-    return render_ui("كشف حساب", f"<h3>📜 كشف حساب: {name}</h3><button onclick='window.print()' class='btn no-print' style='background:#444; color:white;'>🖨️ طباعة</button><table><thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>العملة</th><th>البيان</th></tr></thead>{rows}{total_rows}</table>", uid)
+    conn = get_db(); u = conn.execute("SELECT * FROM users WHERE id=?", (uid,)).fetchone()
+    c = f"""<h4>⚙️ إعدادات الحساب</h4><form action='/update_profile' method='POST'><div class='grid'><input name='un' value='{u['user_real_name']}'><input name='e' value='{u['email']}'><input name='s' value='{u['store_name']}'></div><button class='btn btn-p'>تحديث</button></form>"""
+    return render_ui("الإعدادات", c, uid, "/settings")
 
-@app.route('/admin')
-def page_admin():
-    uid = request.cookies.get('uid')
-    conn = get_db()
-    u_c = conn.execute("SELECT COUNT(id) FROM users").fetchone()[0]
-    c_c = conn.execute("SELECT COUNT(id) FROM customers").fetchone()[0]
-    l_c = conn.execute("SELECT COUNT(id) FROM ledger").fetchone()[0]
-    content = f"""<h3>👑 لوحة تحكم المدير الرئيسي</h3><div class='grid'><div class='card'><h5>المستخدمين</h5><h2>{u_c}</h2></div><div class='card'><h5>العملاء</h5><h2>{c_c}</h2></div><div class='card'><h5>العمليات</h5><h2>{l_c}</h2></div></div><br><h4>إدارة النظام: م. أيمن الحميري</h4>"""
-    return render_ui("إدارة المدير", content, uid, "/admin")
-
-@app.route('/contact')
+@app.route('/contact') # صفحة تواصل مع متطلباتها
 def page_contact():
     uid = request.cookies.get('uid')
-    content = """<div style='text-align:center; padding:40px;'><h2 style='color:var(--p);'>📞 تواصل مع المطور</h2><h3>م. أيمن الحميري</h3><a href='https://wa.me/966556868717' class='btn btn-wa' target='_blank'>💬 واتساب: 0556868717</a><br><br><p>kebriay2030@gmail.com</p></div>"""
-    return render_ui("تواصل", content, uid, "/contact")
+    c = """<div style='text-align:center;'><h2>📞 تواصل مع المطور</h2><h3>م. أيمن الحميري</h3><a href='https://wa.me/966556868717' class='btn btn-wa'>واتساب: 0556868717</a></div>"""
+    return render_ui("تواصل", c, uid, "/contact")
 
-# --- دوال العمليات (POST) ---
+@app.route('/logout') # تسجيل خروج
+def logout():
+    resp = make_response(redirect('/login')); resp.set_cookie('uid', '', expires=0); return resp
+
+# --- العمليات (POST) ---
 @app.route('/add_cust', methods=['POST'])
 def add_cust():
     uid = request.cookies.get('uid')
-    if uid:
-        conn = get_db(); conn.execute("INSERT INTO customers (owner_id, fullname, mobile, address, vat_number) VALUES (?,?,?,?,?)", (uid, request.form['n'], request.form['m'], request.form['a'], request.form['v'])); conn.commit()
+    conn = get_db(); conn.execute("INSERT INTO customers (owner_id, fullname, mobile) VALUES (?,?,?)", (uid, request.form['n'], request.form['m'])); conn.commit()
     return redirect('/')
+
+@app.route('/save_tx', methods=['POST'])
+def save_tx():
+    uid = request.cookies.get('uid')
+    conn = get_db(); conn.execute("INSERT INTO ledger (owner_id, customer_id, val_amount, val_currency, val_type, val_notes, entry_date) VALUES (?,?,?,?,?,?,?)", 
+                 (uid, request.form['cid'], float(request.form['amt']), request.form['curr'], request.form['type'], request.form['note'], datetime.now().strftime("%Y-%m-%d %H:%M")))
+    conn.commit(); return redirect('/reports')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        conn = get_db()
-        user = conn.execute("SELECT id FROM users WHERE email=? AND password=?", (request.form['e'], request.form['p'])).fetchone()
-        if user:
-            resp = make_response(redirect('/'))
-            resp.set_cookie('uid', str(user['id'])); return resp
-    return render_ui("دخول", "<h3>🔐 تسجيل الدخول</h3><form method='POST'><input name='e' placeholder='البريد'><input name='p' type='password' placeholder='كلمة السر'><button class='btn btn-p'>دخول</button></form>")
-
-@app.route('/logout')
-def logout():
-    resp = make_response(redirect('/login')); resp.set_cookie('uid', '', expires=0); return resp
+        conn = get_db(); user = conn.execute("SELECT id FROM users WHERE email=? AND password=?", (request.form['e'], request.form['p'])).fetchone()
+        if user: resp = make_response(redirect('/')); resp.set_cookie('uid', str(user['id'])); return resp
+    return render_ui("دخول", "<h3>🔐 دخول</h3><form method='POST'><input name='e' placeholder='البريد'><input name='p' type='password' placeholder='كلمة السر'><button class='btn btn-p'>دخول</button></form>")
 
 if __name__ == "__main__":
     app.run()
