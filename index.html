@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بهجة برو V30 - نظام النخبة</title>
+    <style>
+        :root { --p: #1a237e; --s: #0288d1; --bg: #f0f2f5; --w: #ffffff; --red: #d32f2f; --green: #388e3c; --gray: #546e7a; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: #333; }
+        .header { background: linear-gradient(135deg, var(--p), var(--s)); color: white; padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 0 0 20px 20px; }
+        .container { padding: 15px; max-width: 700px; margin: auto; }
+        .card { background: var(--w); padding: 20px; border-radius: 15px; box-shadow: 0 8px 16px rgba(0,0,0,0.08); margin-bottom: 20px; display: none; }
+        .card.active { display: block; animation: slideUp 0.4s ease; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .btn { padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; width: 100%; transition: 0.3s; font-size: 15px; }
+        .btn-p { background: var(--p); box-shadow: 0 4px 6px rgba(26, 35, 126, 0.2); }
+        .btn-p:hover { background: var(--s); }
+        .btn-del { background: var(--red); font-size: 12px; width: auto; padding: 6px 12px; }
+        .btn-edit { background: #f57c00; font-size: 12px; width: auto; padding: 6px 12px; margin-left: 5px; }
+        input, select, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #cfd8dc; border-radius: 10px; box-sizing: border-box; font-size: 15px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--s); box-shadow: 0 0 8px rgba(2, 136, 209, 0.2); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; overflow: hidden; border-radius: 10px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eceff1; text-align: center; }
+        th { background: #f1f8e9; color: var(--p); font-weight: 700; }
+        .pos { color: var(--green); font-weight: bold; }
+        .neg { color: var(--red); font-weight: bold; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
+        .nav-item { flex: 1; text-align: center; padding: 15px 5px; color: #90a4ae; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.3s; }
+        .nav-item.active { color: var(--p); border-top: 4px solid var(--p); background: #f5f5f5; }
+        .summary-box { display: flex; justify-content: space-around; margin-top: 10px; gap: 10px; }
+        .sum-item { flex: 1; padding: 15px; border-radius: 12px; text-align: center; color: white; }
+        .total-banner { background: #f1f8e9; padding: 20px; border-radius: 12px; text-align: center; border: 2px dashed var(--green); margin-top: 15px; }
+    </style>
+</head>
+<body onload="checkAuth()">
+
+<div id="loginPage" class="container" style="display:none; margin-top: 80px;">
+    <div class="card active" style="text-align: center;">
+        <h2 style="color:var(--p)">🔐 نظام بهجة برو V30</h2>
+        <p>يرجى إدخال كلمة المرور للوصول</p>
+        <input type="password" id="pass" placeholder="كلمة المرور (123456)">
+        <button class="btn btn-p" onclick="login()">دخول النظام</button>
+    </div>
+</div>
+
+<div id="mainSys" style="display:none;">
+    <div class="header">
+        <h2 id="storeT">بهجة برو V30</h2>
+        <div class="summary-box">
+            <div class="sum-item" style="background: var(--green);">مستحقات (له): <br><span id="totalPos">0</span></div>
+            <div class="sum-item" style="background: var(--red);">ديون (عليه): <br><span id="totalNeg">0</span></div>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div id="pgCust" class="card active">
+            <h3>👥 إدارة العملاء</h3>
+            <input type="text" id="cn" placeholder="اسم العميل الرباعي">
+            <input type="text" id="cp" placeholder="رقم الجوال">
+            <button class="btn btn-p" onclick="addCust()">➕ إضافة عميل جديد</button>
+            <table>
+                <thead><tr><th>الاسم</th><th>التحكم</th></tr></thead>
+                <tbody id="cBody"></tbody>
+            </table>
+        </div>
+
+        <div id="pgTx" class="card">
+            <h3>📥 تسجيل عملية مالية</h3>
+            <select id="txSel"></select>
+            <input type="number" id="txA" placeholder="المبلغ">
+            <select id="txT">
+                <option value="له">له (استلمت منه / دائن)</option>
+                <option value="عليه">عليه (أخذ مني / مدين)</option>
+            </select>
+            <textarea id="txN" placeholder="بيان العملية (مثلاً: دفعة مبيعات عصير)"></textarea>
+            <button class="btn btn-p" onclick="addTx()">✅ حفظ العملية</button>
+        </div>
+
+        <div id="pgRep" class="card">
+            <h3>📊 التقارير والكشوفات</h3>
+            <select id="repSel" onchange="loadRep()"></select>
+            <div id="repView">
+                <table>
+                    <thead><tr><th>التاريخ</th><th>البيان</th><th>المبلغ</th><th>الحالة</th></tr></thead>
+                    <tbody id="stBody"></tbody>
+                </table>
+                <div id="stFoot" class="total-banner">اختر عميلاً لعرض التقرير</div>
+            </div>
+            <hr>
+            <h4>📋 كشف الأرصدة الإجمالي</h4>
+            <table id="allTable">
+                <thead><tr><th>العميل</th><th>الرصيد النهائي</th></tr></thead>
+                <tbody id="allBody"></tbody>
+            </table>
+        </div>
+
+        <div id="pgSet" class="card">
+            <h3>⚙️ الإعدادات والنسخ الاحتياطي</h3>
+            <input type="text" id="sS" placeholder="تغيير اسم المتجر">
+            <button class="btn btn-p" onclick="saveSet()">حفظ الإعدادات</button>
+            <hr>
+            <button class="btn" style="background:#2e7d32;" onclick="exportDB()">📥 تحميل نسخة احتياطية (JSON)</button>
+            <p style="font-size:12px; color:var(--gray);">استورد بياناتك السابقة:</p>
+            <input type="file" id="importFile" onchange="importDB(event)">
+            <hr>
+            <button class="btn btn-del" style="width:100%" onclick="logout()">🚪 تسجيل الخروج من النظام</button>
+        </div>
+
+        <div id="pgCon" class="card">
+            <h3>📞 الدعم الفني</h3>
+            <div style="text-align:center;">
+                <p><b>المطور: م. أيمن الحميري</b></p>
+                <p>واتساب: 0556868717</p>
+                <p>النسخة الماسية المخصصة لإدارة مبيعات العصير والمنتجات.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <nav class="nav">
+        <div class="nav-item active" onclick="show('pgCust', this)">👥 العملاء</div>
+        <div class="nav-item" onclick="show('pgTx', this)">📥 حركة</div>
+        <div class="nav-item" onclick="show('pgRep', this)">📊 تقارير</div>
+        <div class="nav-item" onclick="show('pgSet', this)">⚙️ إعدادات</div>
+        <div class="nav-item" onclick="show('pgCon', this)">📞</div>
+    </nav>
+</div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('bahjat_v30')) || { customers: [], ledger: [], store: 'بهجة برو V30' };
+
+    function login() {
+        if(document.getElementById('pass').value==='123456') {
+            localStorage.setItem('auth_v30', 'true'); checkAuth();
+        } else { alert('كلمة المرور غير صحيحة!'); }
+    }
+
+    function checkAuth() {
+        if(localStorage.getItem('auth_v30')==='true') {
+            document.getElementById('loginPage').style.display='none';
+            document.getElementById('mainSys').style.display='block';
+            document.getElementById('storeT').innerText = db.store;
+            render();
+        } else { document.getElementById('loginPage').style.display='block'; }
+    }
+
+    function logout() { localStorage.removeItem('auth_v30'); location.reload(); }
+
+    function show(id, el) {
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        render();
+    }
+
+    function addCust() {
+        let n = document.getElementById('cn').value;
+        let p = document.getElementById('cp').value;
+        if(!n) return;
+        db.customers.push({name: n, phone: p});
+        save();
+        document.getElementById('cn').value=''; document.getElementById('cp').value='';
+    }
+
+    function addTx() {
+        let cid = document.getElementById('txSel').value;
+        let amt = document.getElementById('txA').value;
+        if(cid==="" || !amt) return;
+        db.ledger.push({
+            cid, 
+            amt: parseFloat(amt), 
+            type: document.getElementById('txT').value, 
+            note: document.getElementById('txN').value, 
+            date: new Date().toLocaleDateString('ar-SA')
+        });
+        save();
+        alert('تم تسجيل العملية بنجاح');
+        show('pgRep', document.querySelectorAll('.nav-item')[2]);
+    }
+
+    function render() {
+        let cb = document.getElementById('cBody'); let ts = document.getElementById('txSel'); let rs = document.getElementById('repSel');
+        cb.innerHTML = ''; ts.innerHTML = '<option value="">-- اختر عميل --</option>'; rs.innerHTML = ts.innerHTML;
+        
+        let tPos = 0, tNeg = 0;
+
+        db.customers.forEach((c, i) => {
+            cb.innerHTML += `<tr><td>${c.name}</td><td>
+                <button class="btn btn-edit" onclick="editC(${i})">✏️</button>
+                <button class="btn btn-del" onclick="delC(${i})">🗑️</button></td></tr>`;
+            ts.innerHTML += `<option value="${i}">${c.name}</option>`;
+            rs.innerHTML += `<option value="${i}">${c.name}</option>`;
+        });
+        
+        let ab = document.getElementById('allBody'); ab.innerHTML = '';
+        db.customers.forEach((c, i) => {
+            let b = 0;
+            db.ledger.filter(l => l.cid == i).forEach(l => { b += (l.type==='له'?l.amt:-l.amt); });
+            if(b > 0) tPos += b; else tNeg += Math.abs(b);
+            ab.innerHTML += `<tr><td>${c.name}</td><td class="${b>=0?'pos':'neg'}">${b.toFixed(2)}</td></tr>`;
+        });
+
+        document.getElementById('totalPos').innerText = tPos.toFixed(2);
+        document.getElementById('totalNeg').innerText = tNeg.toFixed(2);
+    }
+
+    function loadRep() {
+        let cid = document.getElementById('repSel').value;
+        let sb = document.getElementById('stBody');
+        let total = 0;
+        sb.innerHTML = '';
+        if(cid==="") { document.getElementById('stFoot').innerText = 'اختر عميلاً'; return; }
+        
+        db.ledger.filter(l => l.cid == cid).forEach(l => {
+            total += (l.type==='له' ? l.amt : -l.amt);
+            sb.innerHTML += `<tr><td>${l.date}</td><td>${l.note}</td><td>${l.amt}</td><td class="${l.type==='له'?'pos':'neg'}">${l.type}</td></tr>`;
+        });
+        document.getElementById('stFoot').innerHTML = `<h3>الرصيد النهائي للعميل: <span class="${total>=0?'pos':'neg'}">${total.toFixed(2)}</span></h3>`;
+    }
+
+    function editC(i) {
+        let n = prompt('تعديل اسم العميل:', db.customers[i].name);
+        if(n) { db.customers[i].name = n; save(); }
+    }
+
+    function delC(i) {
+        if(confirm('تحذير: حذف العميل سيمسح كافة سجلاته المالية نهائياً! هل تريد الاستمرار؟')) {
+            db.customers.splice(i,1);
+            db.ledger = db.ledger.filter(l => l.cid != i);
+            save();
+        }
+    }
+
+    function saveSet() {
+        let s = document.getElementById('sS').value;
+        if(s) { db.store = s; save(); location.reload(); }
+    }
+
+    function save() {
+        localStorage.setItem('bahjat_v30', JSON.stringify(db));
+        render();
+    }
+
+    function exportDB() {
+        let data = JSON.stringify(db);
+        let blob = new Blob([data], {type: "application/json"});
+        let a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `backup_bahjat_${new Date().toLocaleDateString()}.json`;
+        a.click();
+    }
+
+    function importDB(event) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            db = JSON.parse(e.target.result);
+            save();
+            location.reload();
+        };
+        reader.readAsText(event.target.files[0]);
+    }
+</script>
+</body>
+</html>
