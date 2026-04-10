@@ -1,210 +1,231 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام بهجة برو V31 - النخبة</title>
+    <title>نظام إدارة الحسابات الماسي - V31</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --p: #1a237e; --s: #0288d1; --bg: #f4f7f9; --white: #ffffff; --red: #d32f2f; --green: #2e7d32; }
-        body { font-family: 'Segoe UI', Tahoma; background: var(--bg); margin: 0; padding-bottom: 80px; text-align: right; }
-        .header { background: linear-gradient(135deg, var(--p), var(--s)); color: white; padding: 20px; text-align: center; border-radius: 0 0 25px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .container { padding: 15px; max-width: 800px; margin: auto; }
-        .card { background: var(--white); padding: 20px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; display: none; }
-        .card.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .btn { padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; width: 100%; transition: 0.3s; font-size: 14px; }
-        .btn-p { background: var(--p); }
-        .btn-del { background: var(--red); width: auto; padding: 5px 10px; font-size: 12px; }
-        .btn-edit { background: #f57c00; width: auto; padding: 5px 10px; font-size: 12px; margin-left: 5px; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 14px; outline: none; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 10px; overflow: hidden; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
-        th { background: #f8f9fa; color: var(--p); }
-        .pos { color: var(--green); font-weight: bold; background: #e8f5e9; }
-        .neg { color: var(--red); font-weight: bold; background: #ffebee; }
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); }
-        .nav-item { flex: 1; text-align: center; padding: 15px 5px; color: #78909c; cursor: pointer; font-size: 12px; font-weight: bold; }
-        .nav-item.active { color: var(--p); border-top: 4px solid var(--p); background: #f0f4ff; }
-        .footer-total { background: #333; color: white; padding: 15px; border-radius: 10px; text-align: center; margin-top: 15px; font-size: 16px; }
+        :root { --primary: #2563eb; --secondary: #1e40af; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --success: #22c55e; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        
+        /* شاشة الدخول */
+        #login-screen { display: flex; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, var(--primary), var(--secondary)); }
+        .login-card { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 90%; max-width: 400px; text-align: center; }
+        
+        /* الواجهة الرئيسية */
+        #main-app { display: none; padding: 20px; }
+        header { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #e2e8f0; padding: 5px; border-radius: 10px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; background: none; font-weight: bold; }
+        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; }
+        button { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; transition: 0.3s; }
+        button:hover { background: var(--secondary); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: right; }
+        th { background: #f1f5f9; }
+        
+        .action-btns { display: flex; gap: 5px; }
+        .edit-btn { background: var(--success); padding: 5px 10px; font-size: 14px; width: auto; }
+        .del-btn { background: var(--danger); padding: 5px 10px; font-size: 14px; width: auto; }
+        .total-row { background: #fef3c7; font-weight: bold; font-size: 18px; }
+        
+        @media (max-width: 600px) { th, td { font-size: 12px; padding: 8px; } .tabs { font-size: 14px; } }
     </style>
 </head>
-<body onload="checkAuth()">
+<body>
 
-<div id="loginPage" class="container" style="display:none; margin-top: 50px;">
-    <div class="card active" style="text-align: center;">
-        <h2 style="color:var(--p)">🔐 دخول نظام النخبة</h2>
-        <input type="text" id="userInp" placeholder="اسم المستخدم">
-        <input type="password" id="passInp" placeholder="كلمة المرور">
-        <button class="btn btn-p" onclick="login()">دخول</button>
-        <p style="font-size:12px; color:gray; margin-top:15px; cursor:pointer;" onclick="resetSystem()">نسيت كلمة السر؟ (إعادة ضبط)</p>
+    <div id="login-screen">
+        <div class="login-card">
+            <h2 style="color: var(--primary)">مرحباً م. أيمن 👋</h2>
+            <p>يرجى تسجيل الدخول للنظام</p>
+            <input type="text" id="username" placeholder="اسم المستخدم">
+            <input type="password" id="password" placeholder="كلمة المرور">
+            <button onclick="handleLogin()">دخول للنظام</button>
+            <p id="login-error" style="color: red; display: none; margin-top: 10px;">خطأ في البيانات!</p>
+        </div>
     </div>
-</div>
 
-<div id="mainSys" style="display:none;">
-    <div class="header"><h2 id="storeT">بهجة برو V31</h2></div>
-    <div class="container">
-        
-        <div id="pgCust" class="card active">
-            <h3>👥 إدارة العملاء</h3>
-            <input type="text" id="cn" placeholder="اسم العميل">
-            <input type="text" id="cp" placeholder="رقم الجوال">
-            <button class="btn btn-p" onclick="addCust()">➕ إضافة عميل</button>
-            <table>
-                <thead><tr><th>الاسم</th><th>الجوال</th><th>التحكم</th></tr></thead>
-                <tbody id="cBody"></tbody>
-            </table>
+    <div id="main-app">
+        <header>
+            <h3 style="margin:0">نظام الإدارة الماسي <span style="font-size: 12px; color: #64748b;">V31</span></h3>
+            <button onclick="logout()" style="width: auto; background: #64748b; padding: 5px 15px;">خروج</button>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('customers')">العملاء</button>
+            <button class="tab-btn" onclick="showTab('reports')">التقارير الإجمالية</button>
+            <button class="tab-btn" onclick="showTab('contact')">تواصل معنا</button>
         </div>
 
-        <div id="pgTx" class="card">
-            <h3>📥 تسجيل حركة مالية</h3>
-            <select id="txSel"></select>
-            <input type="number" id="txA" placeholder="المبلغ">
-            <select id="txT">
-                <option value="له">له (سداد/إيداع)</option>
-                <option value="عليه">عليه (دين/سحب)</option>
-            </select>
-            <textarea id="txN" placeholder="بيان العملية..."></textarea>
-            <button class="btn btn-p" onclick="addTx()">✅ حفظ العملية</button>
-        </div>
-
-        <div id="pgRep" class="card">
-            <h3>📊 كشوفات الحساب</h3>
-            <select id="repSel" onchange="loadRep()"></select>
-            <div id="repView">
-                <table><thead><tr><th>التاريخ</th><th>البيان</th><th>المبلغ</th><th>الحالة</th></tr></thead><tbody id="stBody"></tbody></table>
-                <div id="stFoot" class="footer-total">اختر عميلاً</div>
+        <div id="customers-tab" class="tab-content">
+            <div class="card">
+                <h4>إضافة / تعديل عميل</h4>
+                <input type="hidden" id="edit-index">
+                <input type="text" id="cust-name" placeholder="اسم العميل">
+                <input type="text" id="cust-phone" placeholder="رقم الجوال">
+                <input type="text" id="cust-address" placeholder="العنوان">
+                <input type="number" id="cust-balance" placeholder="المبلغ الافتتاحي (له أو عليه)">
+                <button id="add-btn" onclick="saveCustomer()">حفظ البيانات</button>
             </div>
-            <hr>
-            <h4>📋 الإجمالي العام لجميع الحسابات</h4>
-            <table id="allTable"><thead><tr><th>العميل</th><th>الرصيد النهائي</th></tr></thead><tbody id="allBody"></tbody></table>
-        </div>
 
-        <div id="pgSet" class="card">
-            <h3>⚙️ الإعدادات والأمان</h3>
-            <input type="text" id="sS" placeholder="اسم المتجر">
-            <input type="text" id="sU" placeholder="اسم المستخدم الجديد">
-            <input type="password" id="sP" placeholder="كلمة المرور الجديدة">
-            <button class="btn btn-p" onclick="saveSet()">حفظ التعديلات</button>
-            <hr>
-            <button class="btn" style="background:#2e7d32;" onclick="exportDB()">📥 نسخة احتياطية (JSON)</button>
-            <p style="font-size:11px;">لاستعادة بياناتك، اختر ملف النسخة:</p>
-            <input type="file" onchange="importDB(event)">
-            <hr>
-            <button class="btn btn-del" style="width:100%" onclick="logout()">🚪 خروج</button>
-        </div>
-
-        <div id="pgCon" class="card">
-            <h3>📞 تواصل مع المطور</h3>
-            <div style="text-align:center;">
-                <p><b>م. أيمن الحميري</b></p>
-                <p>واتساب: 0556868717</p>
-                <p>البريد: kebriay2030@gmail.com</p>
+            <div class="card" style="overflow-x: auto;">
+                <h4>قائمة العملاء الحاليين</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>الجوال</th>
+                            <th>الرصيد</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customer-list"></tbody>
+                </table>
             </div>
         </div>
 
+        <div id="reports-tab" class="tab-content" style="display: none;">
+            <div class="card">
+                <h3>📊 الكشف الإجمالي العام</h3>
+                <div id="total-summary" style="font-size: 20px; padding: 20px; text-align: center; background: #ecfdf5; border-radius: 10px; margin-bottom: 20px;">
+                    إجمالي مديونيات العملاء: <span id="grand-total" style="color: var(--danger); font-weight: bold;">0</span> ر.ي
+                </div>
+                <table id="summary-table">
+                    <thead>
+                        <tr>
+                            <th>اسم العميل</th>
+                            <th>المبلغ المستحق</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="contact-tab" class="tab-content" style="display: none;">
+            <div class="card" style="text-align: center;">
+                <h3>📞 قنوات التواصل الرسمية</h3>
+                <p>مرحباً بك م. أيمن، يمكنك التواصل مع الدعم الفني عبر:</p>
+                <div style="font-size: 18px; margin: 20px 0;">
+                    <p>🟢 واتساب: <strong>0556868717</strong></p>
+                    <p>📧 بريد: <strong>kebriay2030@gmail.com</strong></p>
+                </div>
+                <button onclick="window.open('https://wa.me/966556868717')">إرسال رسالة واتساب مباشرة</button>
+            </div>
+        </div>
     </div>
 
-    <nav class="nav">
-        <div class="nav-item active" onclick="show('pgCust', this)">👥 العملاء</div>
-        <div class="nav-item" onclick="show('pgTx', this)">📥 حركة</div>
-        <div class="nav-item" onclick="show('pgRep', this)">📊 تقارير</div>
-        <div class="nav-item" onclick="show('pgSet', this)">⚙️ إعدادات</div>
-        <div class="nav-item" onclick="show('pgCon', this)">📞</div>
-    </nav>
-</div>
+    <script>
+        let customers = JSON.parse(localStorage.getItem('ayman_system_v31')) || [];
 
-<script>
-    let db = JSON.parse(localStorage.getItem('bahjat_v31')) || { 
-        customers: [], ledger: [], store: 'بهجة برو V31', user: 'admin', pass: '123456' 
-    };
+        function handleLogin() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            if(u === 'admin' && p === '123456') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                renderCustomers();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
 
-    function login() {
-        if(document.getElementById('userInp').value === db.user && document.getElementById('passInp').value === db.pass) {
-            localStorage.setItem('auth_v31', 'true'); checkAuth();
-        } else { alert('بيانات الدخول خاطئة!'); }
-    }
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            event.target.classList.add('active');
+            if(tabName === 'reports') renderReports();
+        }
 
-    function checkAuth() {
-        if(localStorage.getItem('auth_v31') === 'true') {
-            document.getElementById('loginPage').style.display='none';
-            document.getElementById('mainSys').style.display='block';
-            document.getElementById('storeT').innerText = db.store;
-            render();
-        } else { document.getElementById('loginPage').style.display='block'; }
-    }
+        function saveCustomer() {
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            const address = document.getElementById('cust-address').value;
+            const balance = parseFloat(document.getElementById('cust-balance').value) || 0;
+            const editIndex = document.getElementById('edit-index').value;
 
-    function logout() { localStorage.removeItem('auth_v31'); location.reload(); }
+            if(!name) return alert('يرجى إدخال اسم العميل');
 
-    function show(id, el) {
-        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-        render();
-    }
+            const customerData = { name, phone, address, balance };
 
-    function addCust() {
-        let n = document.getElementById('cn').value;
-        if(!n) return;
-        db.customers.push({name: n, phone: document.getElementById('cp').value});
-        save(); document.getElementById('cn').value=''; document.getElementById('cp').value='';
-    }
+            if(editIndex === "") {
+                customers.push(customerData);
+            } else {
+                customers[editIndex] = customerData;
+                document.getElementById('edit-index').value = "";
+                document.getElementById('add-btn').innerText = "حفظ البيانات";
+            }
 
-    function addTx() {
-        let cid = document.getElementById('txSel').value;
-        let amt = document.getElementById('txA').value;
-        if(cid==="" || !amt) return;
-        db.ledger.push({cid, amt:parseFloat(amt), type:document.getElementById('txT').value, note:document.getElementById('txN').value, date:new Date().toLocaleDateString()});
-        save(); alert('تم الحفظ'); show('pgRep', document.querySelectorAll('.nav-item')[2]);
-    }
+            localStorage.setItem('ayman_system_v31', JSON.stringify(customers));
+            clearInputs();
+            renderCustomers();
+            alert('تم الحفظ بنجاح');
+        }
 
-    function render() {
-        let cb = document.getElementById('cBody'); let ts = document.getElementById('txSel'); let rs = document.getElementById('repSel');
-        cb.innerHTML = ''; ts.innerHTML = '<option value="">-- اختر عميل --</option>'; rs.innerHTML = ts.innerHTML;
-        db.customers.forEach((c, i) => {
-            cb.innerHTML += `<tr><td>${c.name}</td><td>${c.phone}</td><td>
-                <button class="btn btn-edit" onclick="editC(${i})">✏️</button>
-                <button class="btn btn-del" onclick="delC(${i})">🗑️</button></td></tr>`;
-            ts.innerHTML += `<option value="${i}">${c.name}</option>`;
-            rs.innerHTML += `<option value="${i}">${c.name}</option>`;
-        });
-        
-        let ab = document.getElementById('allBody'); ab.innerHTML = '';
-        db.customers.forEach((c, i) => {
-            let b = 0; db.ledger.filter(l => l.cid == i).forEach(l => { b += (l.type==='له'?l.amt:-l.amt); });
-            ab.innerHTML += `<tr><td>${c.name}</td><td class="${b>=0?'pos':'neg'}">${b.toFixed(2)}</td></tr>`;
-        });
-    }
+        function renderCustomers() {
+            const list = document.getElementById('customer-list');
+            list.innerHTML = '';
+            customers.forEach((c, index) => {
+                list.innerHTML += `
+                    <tr>
+                        <td>${c.name}</td>
+                        <td>${c.phone}</td>
+                        <td style="color: ${c.balance >=0 ? 'green':'red'}">${c.balance}</td>
+                        <td class="action-btns">
+                            <button class="edit-btn" onclick="editCustomer(${index})">✏️</button>
+                            <button class="del-btn" onclick="deleteCustomer(${index})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
 
-    function loadRep() {
-        let cid = document.getElementById('repSel').value; let sb = document.getElementById('stBody'); let total = 0;
-        sb.innerHTML = ''; if(cid==="") return;
-        db.ledger.filter(l => l.cid == cid).forEach(l => {
-            total += (l.type==='له' ? l.amt : -l.amt);
-            sb.innerHTML += `<tr><td>${l.date}</td><td>${l.note}</td><td>${l.amt}</td><td class="${l.type==='له'?'pos':'neg'}">${l.type}</td></tr>`;
-        });
-        document.getElementById('stFoot').innerHTML = `صافي الرصيد: <span style="color:${total>=0?'#4caf50':'#ff5252'}">${total.toFixed(2)}</span>`;
-    }
+        function editCustomer(index) {
+            const c = customers[index];
+            document.getElementById('cust-name').value = c.name;
+            document.getElementById('cust-phone').value = c.phone;
+            document.getElementById('cust-address').value = c.address;
+            document.getElementById('cust-balance').value = c.balance;
+            document.getElementById('edit-index').value = index;
+            document.getElementById('add-btn').innerText = "تحديث البيانات";
+            window.scrollTo(0,0);
+        }
 
-    function editC(i) { let n = prompt('الاسم الجديد:', db.customers[i].name); if(n) { db.customers[i].name = n; save(); } }
-    function delC(i) { if(confirm('حذف العميل وسجلاته؟')){ db.customers.splice(i,1); db.ledger=db.ledger.filter(l=>l.cid!=i); save(); } }
-    function saveSet() {
-        db.store = document.getElementById('sS').value || db.store;
-        db.user = document.getElementById('sU').value || db.user;
-        db.pass = document.getElementById('sP').value || db.pass;
-        save(); alert('تم التحديث'); location.reload();
-    }
-    function save() { localStorage.setItem('bahjat_v31', JSON.stringify(db)); render(); }
-    function exportDB() {
-        let blob = new Blob([JSON.stringify(db)], {type: "application/json"});
-        let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "bahjat_backup.json"; a.click();
-    }
-    function importDB(e) {
-        let reader = new FileReader();
-        reader.onload = (event) => { db = JSON.parse(event.target.result); save(); location.reload(); };
-        reader.readAsText(e.target.files[0]);
-    }
-    function resetSystem() { if(confirm('سيتم العودة لبيانات الدخول الافتراضية، هل أنت متأكد؟')) { db.user='admin'; db.pass='123456'; save(); alert('الاسم: admin والرمز: 123456'); } }
-</script>
+        function deleteCustomer(index) {
+            if(confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+                customers.splice(index, 1);
+                localStorage.setItem('ayman_system_v31', JSON.stringify(customers));
+                renderCustomers();
+            }
+        }
+
+        function renderReports() {
+            const body = document.getElementById('report-body');
+            let total = 0;
+            body.innerHTML = '';
+            customers.forEach(c => {
+                total += c.balance;
+                body.innerHTML += `<tr><td>${c.name}</td><td>${c.balance}</td></tr>`;
+            });
+            document.getElementById('grand-total').innerText = total;
+        }
+
+        function clearInputs() {
+            document.getElementById('cust-name').value = '';
+            document.getElementById('cust-phone').value = '';
+            document.getElementById('cust-address').value = '';
+            document.getElementById('cust-balance').value = '';
+        }
+
+        function logout() { location.reload(); }
+    </script>
 </body>
 </html>
