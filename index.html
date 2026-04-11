@@ -3,133 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الاستراتيجي الماسي V36 - النظام المحاسبي المتكامل</title>
+    <title>الاستراتيجي الماسي V37 - النسخة العالمية</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; }
-        .tab-content { display: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap');
+        
+        :root {
+            --primary: #2563eb;
+            --success: #059669;
+            --danger: #dc2626;
+            --bg: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background-color: var(--bg);
+            color: #1e293b;
+            transition: all 0.3s ease;
+        }
+
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
         .tab-content.active { display: block; }
-        .card-debt { background-color: #fef2f2; border: 1px solid #fee2e2; } /* أحمر - عليه */
-        .card-credit { background-color: #f0fdf4; border: 1px solid #dcfce7; } /* أخضر - له */
-        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .card-premium {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #f1f5f9;
+        }
+
+        .card-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+        }
+
+        .nav-active {
+            color: var(--primary);
+            position: relative;
+        }
+
+        .nav-active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            width: 15px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        /* تلوين مخصص حسب الحالة */
+        .status-credit { background: linear-gradient(to left, #f0fdf4, #ffffff); border-right: 6px solid var(--success); }
+        .status-debt { background: linear-gradient(to left, #fef2f2, #ffffff); border-right: 6px solid var(--danger); }
     </style>
 </head>
-<body class="min-h-screen pb-24 text-slate-800">
+<body class="min-h-screen pb-28">
 
-<div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900 p-4">
-    <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl border-t-8 border-blue-600">
-        <h2 class="text-2xl font-bold mb-6 text-center">دخول النظام</h2>
-        <input type="password" id="passInput" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 rounded-2xl mb-4 border-none ring-1 ring-gray-200 outline-none">
-        <button onclick="login()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg mb-4">دخول</button>
-        <button onclick="forgotPass()" class="w-full text-blue-600 text-sm hover:underline">نسيت كلمة المرور؟</button>
+<div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950 p-6">
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl border border-slate-100">
+        <div class="text-center mb-10">
+            <div class="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mx-auto mb-4 rotate-3">
+                <i class="fas fa-shield-halved text-4xl text-blue-600"></i>
+            </div>
+            <h2 class="text-3xl font-black text-slate-900">نخبة الاستراتيجي</h2>
+            <p class="text-slate-400 mt-2 font-medium">نظام الإدارة المالية الذكي</p>
+        </div>
+        <div class="space-y-5">
+            <div class="relative">
+                <i class="fas fa-lock absolute right-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                <input type="password" id="passInput" placeholder="كلمة المرور" class="w-full p-4 pr-12 bg-slate-50 rounded-2xl border-none ring-2 ring-transparent focus:ring-blue-500 outline-none transition-all font-bold">
+            </div>
+            <button onclick="login()" class="w-full btn-primary text-white font-bold py-5 rounded-2xl text-lg active:scale-95 transition-transform">دخول النظام</button>
+            <button onclick="forgotPass()" class="w-full text-slate-400 text-sm font-bold hover:text-blue-600">استعادة الوصول؟</button>
+        </div>
     </div>
 </div>
 
 <div id="mainApp" class="hidden">
-    <header class="bg-white p-4 shadow-sm flex justify-between items-center sticky top-0 z-40">
-        <h1 class="font-bold text-xl text-blue-700">الاستراتيجي الماسي <span class="text-slate-400 font-normal">V36</span></h1>
-        <div id="topUserName" class="text-xs font-bold bg-blue-50 px-3 py-1 rounded-full border border-blue-100"></div>
+    <header class="glass-header p-4 sticky top-0 z-40 flex justify-between items-center px-6">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                <i class="fas fa-gem"></i>
+            </div>
+            <h1 class="font-black text-xl tracking-tight text-slate-800">DIAMOND <span class="text-blue-600 font-bold">V37</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-left">
+                <p class="text-[10px] text-slate-400 font-bold leading-none uppercase">المستشار</p>
+                <p id="topUserName" class="text-sm font-black text-slate-700 leading-tight"></p>
+            </div>
+            <button onclick="logout()" class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                <i class="fas fa-power-off text-sm"></i>
+            </button>
+        </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-4 space-y-6">
+    <main class="max-w-6xl mx-auto p-5 space-y-8">
         
-        <div id="customers" class="tab-content active space-y-4">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                <h2 class="font-bold mb-4 flex items-center"><i class="fas fa-user-plus ml-2 text-blue-600"></i>إضافة عميل جديد</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <input type="text" id="custName" placeholder="اسم العميل" class="p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100">
-                    <input type="text" id="custPhone" placeholder="رقم الجوال" class="p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100">
-                    <div class="flex gap-2">
-                        <input type="number" id="custInitAmount" placeholder="المبلغ" class="w-1/2 p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100">
-                        <select id="custInitType" class="w-1/2 p-4 bg-gray-50 rounded-2xl ring-1 ring-gray-100 outline-none text-xs">
-                            <option value="debt">رصيد عليه</option>
-                            <option value="credit">رصيد له</option>
-                        </select>
+        <div id="customers" class="tab-content active space-y-6">
+            <div class="card-premium p-8">
+                <h2 class="text-lg font-black mb-6 flex items-center gap-2"><i class="fas fa-plus-circle text-blue-600"></i> تسجيل عميل جديد</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-bold text-slate-400 mr-2">الاسم الكامل</label>
+                        <input type="text" id="custName" class="w-full p-4 bg-slate-50 rounded-2xl outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-600 transition-all font-medium">
                     </div>
-                    <button onclick="addCustomer()" class="lg:col-span-3 bg-blue-600 text-white font-bold py-4 rounded-2xl hover:bg-blue-700 transition-all">حفظ العميل</button>
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-bold text-slate-400 mr-2">رقم الجوال</label>
+                        <input type="text" id="custPhone" class="w-full p-4 bg-slate-50 rounded-2xl outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-600 transition-all font-medium">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-bold text-slate-400 mr-2">الرصيد الافتتاحي</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="custInitAmount" class="w-full p-4 bg-slate-50 rounded-2xl outline-none ring-1 ring-slate-200 font-bold text-blue-600">
+                            <select id="custInitType" class="p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 outline-none font-bold text-xs">
+                                <option value="credit">له</option>
+                                <option value="debt">عليه</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="addCustomer()" class="w-full btn-primary text-white font-bold h-[58px] rounded-2xl hover:scale-[1.02] transition-transform">تفعيل الحساب</button>
+                    </div>
                 </div>
             </div>
-            <div id="customerList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+            <div id="customerList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
 
         <div id="transactions" class="tab-content max-w-2xl mx-auto">
-            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                <h2 class="text-xl font-bold mb-6 flex items-center text-green-700"><i class="fas fa-exchange-alt ml-2"></i>تسجيل حركة مالية</h2>
-                <div class="space-y-4">
-                    <select id="transTarget" class="w-full p-4 bg-gray-50 rounded-2xl ring-1 ring-gray-100 outline-none font-bold"></select>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="number" id="transAmount" placeholder="المبلغ" class="p-4 bg-gray-50 rounded-2xl ring-1 ring-gray-100 outline-none font-bold text-center text-xl">
-                        <select id="transCurrency" class="p-4 bg-gray-50 rounded-2xl ring-1 ring-gray-100 outline-none"></select>
+            <div class="card-premium p-10">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-black text-slate-800">حركة مالية سريعة</h2>
+                    <p class="text-slate-400 text-sm mt-1">قم بإدخال تفاصيل الإيداع أو السحب</p>
+                </div>
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-black text-slate-500 px-2 uppercase">العميل المستهدف</label>
+                        <select id="transTarget" class="w-full p-5 bg-slate-50 rounded-3xl border-none ring-1 ring-slate-200 outline-none font-bold text-slate-700 appearance-none"></select>
                     </div>
-                    <select id="transType" class="w-full p-4 bg-gray-50 rounded-2xl ring-1 ring-gray-100 outline-none font-bold">
-                        <option value="deposit">إيداع (زيادة رصيده له +)</option>
-                        <option value="withdraw">سحب (نقص رصيده/مديونية عليه -)</option>
-                    </select>
-                    <textarea id="transNote" placeholder="ملاحظات..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 ring-1 ring-gray-100 outline-none"></textarea>
-                    <button onclick="processTransaction()" class="w-full bg-slate-800 text-white font-bold py-5 rounded-2xl shadow-xl hover:bg-slate-900 transition-all">حفظ العملية</button>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-black text-slate-500 px-2 uppercase">المبلغ</label>
+                            <input type="number" id="transAmount" class="w-full p-5 bg-slate-50 rounded-3xl outline-none ring-1 ring-slate-200 font-black text-2xl text-center text-blue-600">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-black text-slate-500 px-2 uppercase">العملة</label>
+                            <select id="transCurrency" class="w-full p-5 bg-slate-50 rounded-3xl border-none ring-1 ring-slate-200 outline-none font-bold"></select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="setTransType('deposit')" id="btnDep" class="p-5 rounded-3xl border-2 border-green-100 bg-green-50 text-green-700 font-black flex flex-col items-center gap-2 transition-all hover:bg-green-100">
+                            <i class="fas fa-arrow-down"></i> إيداع (له)
+                        </button>
+                        <button onclick="setTransType('withdraw')" id="btnWith" class="p-5 rounded-3xl border-2 border-slate-100 bg-slate-50 text-slate-400 font-black flex flex-col items-center gap-2 transition-all hover:bg-red-50 hover:text-red-600 hover:border-red-100">
+                            <i class="fas fa-arrow-up"></i> سحب (عليه)
+                        </button>
+                    </div>
+                    <textarea id="transNote" placeholder="اكتب بياناً للعملية هنا..." class="w-full p-5 bg-slate-50 rounded-3xl h-28 outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-600 transition-all font-medium"></textarea>
+                    <button onclick="processTransaction()" class="w-full btn-primary text-white font-black py-6 rounded-[2rem] shadow-2xl text-lg hover:scale-[1.02] active:scale-95 transition-all">تأكيد العملية الآن</button>
                 </div>
             </div>
         </div>
 
         <div id="reports" class="tab-content space-y-6">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                <h2 class="font-bold mb-4">كشف حساب وتصفية</h2>
-                <div class="flex gap-2 mb-6">
-                    <select id="reportTarget" onchange="updateAccountReport()" class="flex-1 p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100 font-bold"></select>
-                    <button onclick="settleAccount()" class="bg-red-500 text-white px-6 rounded-2xl font-bold text-sm">تصفية الحساب</button>
+            <div class="card-premium p-8 overflow-hidden relative">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-xl font-black">كشف الحساب الذكي</h2>
+                        <p class="text-slate-400 text-xs mt-1 italic">تصفية الحسابات والتدقيق المالي</p>
+                    </div>
+                    <button onclick="settleAccount()" class="bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl hover:bg-blue-600 transition-all">
+                        <i class="fas fa-check-double ml-2"></i>تصفية نهائية
+                    </button>
                 </div>
-                <div id="detailedReport" class="space-y-3"></div>
+                <select id="reportTarget" onchange="updateAccountReport()" class="w-full p-5 bg-slate-50 rounded-3xl mb-8 outline-none ring-1 ring-slate-200 font-black text-slate-700"></select>
+                <div id="detailedReport" class="space-y-4">
+                    </div>
             </div>
         </div>
 
-        <div id="settings" class="tab-content space-y-4">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                <h2 class="font-bold mb-4">الملف الشخصي والعملات</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <input type="text" id="setFullName" placeholder="الاسم الشخصي" class="p-4 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100">
-                    <input type="email" id="setEmail" placeholder="البريد الإلكتروني" class="p-4 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100">
-                    <input type="password" id="setPass" placeholder="تغيير كلمة المرور" class="p-4 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100">
+        <div id="settings" class="tab-content space-y-6 max-w-3xl mx-auto">
+            <div class="card-premium p-8">
+                <h2 class="font-black text-lg mb-6"><i class="fas fa-cog text-slate-400 ml-2"></i>تخصيص النظام</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 px-1 uppercase">اسم المستخدم</label>
+                        <input type="text" id="setFullName" class="w-full p-4 bg-slate-50 rounded-2xl outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 font-bold">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 px-1 uppercase">البريد الإلكتروني</label>
+                        <input type="email" id="setEmail" class="w-full p-4 bg-slate-50 rounded-2xl outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 font-bold">
+                    </div>
+                    <div class="space-y-2 md:col-span-2">
+                        <label class="text-xs font-bold text-slate-400 px-1 uppercase">تغيير كلمة السر</label>
+                        <input type="password" id="setPass" placeholder="اتركها فارغة إذا لا ترغب بالتغيير" class="w-full p-4 bg-slate-50 rounded-2xl outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 font-bold">
+                    </div>
                 </div>
-                <div class="flex gap-2 mb-4 border-t pt-4">
-                    <input type="text" id="newCur" placeholder="أضف عملة جديدة" class="flex-1 p-3 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100">
-                    <button onclick="addCur()" class="bg-green-600 text-white px-6 rounded-xl font-bold">إضافة</button>
-                </div>
-                <div id="curList" class="flex flex-wrap gap-2 mb-6"></div>
-                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg">حفظ كافة التغييرات</button>
+                <button onclick="saveSettings()" class="w-full btn-primary text-white font-black py-4 rounded-2xl mt-8 shadow-lg">حفظ التغييرات</button>
             </div>
             
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex gap-4">
-                <button onclick="exportData()" class="flex-1 bg-slate-100 p-4 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200"><i class="fas fa-file-export ml-2"></i>نسخة احتياطية</button>
-                <label class="flex-1 bg-slate-100 p-4 rounded-xl text-sm font-bold text-slate-600 text-center cursor-pointer hover:bg-slate-200">
-                    <i class="fas fa-file-import ml-2"></i>استعادة بيانات <input type="file" onchange="importData(event)" class="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="exportData()" class="bg-white p-6 rounded-[2rem] border-2 border-dashed border-slate-200 text-slate-500 font-black hover:bg-slate-50 transition-all">
+                    <i class="fas fa-cloud-download-alt text-2xl mb-2 block text-blue-400"></i> تصدير البيانات
+                </button>
+                <label class="bg-white p-6 rounded-[2rem] border-2 border-dashed border-slate-200 text-slate-500 font-black hover:bg-slate-50 transition-all text-center cursor-pointer">
+                    <i class="fas fa-cloud-upload-alt text-2xl mb-2 block text-green-400"></i> استيراد البيانات
+                    <input type="file" onchange="importData(event)" class="hidden">
                 </label>
             </div>
         </div>
-
     </main>
 
-    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 shadow-2xl z-50">
-        <button onclick="switchTab('customers')" class="nav-btn flex flex-col items-center text-blue-600"><i class="fas fa-users text-xl"></i><span class="text-[10px] mt-1 font-bold">العملاء</span></button>
-        <button onclick="switchTab('transactions')" class="nav-btn flex flex-col items-center text-gray-400"><i class="fas fa-cash-register text-xl"></i><span class="text-[10px] mt-1 font-bold">العمليات</span></button>
-        <button onclick="switchTab('reports')" class="nav-btn flex flex-col items-center text-gray-400"><i class="fas fa-file-invoice-dollar text-xl"></i><span class="text-[10px] mt-1 font-bold">التقارير</span></button>
-        <button onclick="switchTab('settings')" class="nav-btn flex flex-col items-center text-gray-400"><i class="fas fa-user-cog text-xl"></i><span class="text-[10px] mt-1 font-bold">الإعدادات</span></button>
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-lg bg-white/90 backdrop-blur-2xl border border-white/20 flex justify-around p-4 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-50">
+        <button onclick="switchTab('customers')" class="nav-btn flex flex-col items-center text-slate-300 transition-all nav-active" id="nav-customers"><i class="fas fa-user-group text-xl"></i><span class="text-[9px] mt-1 font-black">العملاء</span></button>
+        <button onclick="switchTab('transactions')" class="nav-btn flex flex-col items-center text-slate-300 transition-all" id="nav-transactions"><i class="fas fa-bolt text-xl"></i><span class="text-[9px] mt-1 font-black">عملية</span></button>
+        <button onclick="switchTab('reports')" class="nav-btn flex flex-col items-center text-slate-300 transition-all" id="nav-reports"><i class="fas fa-chart-pie text-xl"></i><span class="text-[9px] mt-1 font-black">تقارير</span></button>
+        <button onclick="switchTab('settings')" class="nav-btn flex flex-col items-center text-slate-300 transition-all" id="nav-settings"><i class="fas fa-fingerprint text-xl"></i><span class="text-[9px] mt-1 font-black">إعدادات</span></button>
     </nav>
 </div>
 
 <script>
-    let customers = JSON.parse(localStorage.getItem('c_v36')) || [];
-    let transactions = JSON.parse(localStorage.getItem('t_v36')) || [];
-    let currencies = JSON.parse(localStorage.getItem('cur_v36')) || ['ريال سعودي', 'دولار'];
-    let settings = JSON.parse(localStorage.getItem('s_v36')) || { password: "123", fullName: "م. أيمن", email: "ayman@mail.com" };
+    // تهيئة البيانات
+    let customers = JSON.parse(localStorage.getItem('c_v37')) || [];
+    let transactions = JSON.parse(localStorage.getItem('t_v37')) || [];
+    let currencies = JSON.parse(localStorage.getItem('cur_v37')) || ['ريال سعودي', 'دولار', 'ريال يمني'];
+    let settings = JSON.parse(localStorage.getItem('s_v37')) || { password: "123", fullName: "م. أيمن الحميري", email: "ayman@mail.com" };
+    let currentTransType = 'deposit';
 
     function login() {
         if(document.getElementById('passInput').value === settings.password) {
-            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').classList.remove('hidden');
             initApp();
-        } else { alert('❌ كلمة المرور غير صحيحة!'); }
+        } else {
+            alert('🚫 كلمة المرور غير صحيحة!');
+        }
     }
 
     function initApp() {
@@ -143,18 +271,30 @@
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-blue-600', 'text-gray-400'));
-        event.currentTarget.classList.replace('text-gray-400', 'text-blue-600');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-blue-600'));
+        document.getElementById('nav-'+tabId).classList.add('nav-active');
     }
 
-    // إدارة العملاء
+    function setTransType(type) {
+        currentTransType = type;
+        const bDep = document.getElementById('btnDep');
+        const bWith = document.getElementById('btnWith');
+        if(type === 'deposit') {
+            bDep.className = 'p-5 rounded-3xl border-2 border-green-100 bg-green-50 text-green-700 font-black flex flex-col items-center gap-2 transition-all';
+            bWith.className = 'p-5 rounded-3xl border-2 border-slate-100 bg-slate-50 text-slate-400 font-black flex flex-col items-center gap-2 transition-all';
+        } else {
+            bWith.className = 'p-5 rounded-3xl border-2 border-red-100 bg-red-50 text-red-700 font-black flex flex-col items-center gap-2 transition-all';
+            bDep.className = 'p-5 rounded-3xl border-2 border-slate-100 bg-slate-50 text-slate-400 font-black flex flex-col items-center gap-2 transition-all';
+        }
+    }
+
     function addCustomer() {
         const name = document.getElementById('custName').value;
         const phone = document.getElementById('custPhone').value;
         const initAmt = parseFloat(document.getElementById('custInitAmount').value) || 0;
         const initType = document.getElementById('custInitType').value;
         
-        if(!name) return alert('يرجى كتابة اسم العميل');
+        if(!name) return alert('يرجى كتابة الاسم');
         
         const id = Date.now();
         customers.push({ id, name, phone });
@@ -163,9 +303,9 @@
             transactions.push({
                 id: id + 1,
                 custId: id,
-                amount: initType === 'credit' ? initAmt : -initAmt, // ايداع (له) موجب، سحب (عليه) سالب
+                amount: initType === 'credit' ? initAmt : -initAmt,
                 cur: currencies[0],
-                note: 'رصيد افتتاحي',
+                note: 'رصيد افتتاحي عند التأسيس',
                 type: initType === 'credit' ? 'deposit' : 'withdraw',
                 date: new Date().toLocaleDateString('ar-SA')
             });
@@ -183,24 +323,32 @@
 
         customers.forEach(c => {
             const overall = currencies.reduce((sum, cur) => sum + getBalance(c.id, cur), 0);
-            const cardClass = overall > 0 ? 'card-credit' : (overall < 0 ? 'card-debt' : 'bg-white');
+            const statusClass = overall > 0 ? 'status-credit' : (overall < 0 ? 'status-debt' : '');
 
             let balanceHTML = currencies.map(cur => {
                 const b = getBalance(c.id, cur);
-                return b !== 0 ? `<div class="flex justify-between font-bold ${b > 0 ? 'text-green-600' : 'text-red-600'}"><span>${cur}:</span><span>${Math.abs(b).toLocaleString()}</span></div>` : '';
+                return b !== 0 ? `
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-black text-slate-400 uppercase">${cur}</span>
+                        <span class="text-sm font-black ${b > 0 ? 'text-green-600' : 'text-red-600'}">${Math.abs(b).toLocaleString()}</span>
+                    </div>` : '';
             }).join('');
 
             list.innerHTML += `
-                <div class="${cardClass} p-5 rounded-3xl shadow-sm relative group transition-all">
-                    <div class="flex justify-between items-start">
-                        <h3 class="font-bold text-lg">${c.name}</h3>
-                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editCust(${c.id})" class="text-blue-400"><i class="fas fa-edit"></i></button>
-                            <button onclick="delCust(${c.id})" class="text-red-400"><i class="fas fa-trash"></i></button>
+                <div class="card-premium p-6 ${statusClass}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-black text-slate-800 text-lg">${c.name}</h3>
+                            <p class="text-xs text-slate-400 font-bold">${c.phone || 'بدون هاتف'}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editCust(${c.id})" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 text-xs hover:bg-blue-500 hover:text-white transition-all"><i class="fas fa-pen"></i></button>
+                            <button onclick="delCust(${c.id})" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 text-xs hover:bg-red-500 hover:text-white transition-all"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
-                    <p class="text-xs text-gray-400 mb-3">${c.phone || 'بدون هاتف'}</p>
-                    <div class="border-t pt-3 space-y-1">${balanceHTML || '<p class="text-center text-gray-300 text-[10px]">حساب مصفر</p>'}</div>
+                    <div class="space-y-2 border-t border-slate-50 pt-4">
+                        ${balanceHTML || '<p class="text-center text-slate-300 text-[10px] font-bold italic py-2">لا توجد أرصدة معلقة</p>'}
+                    </div>
                 </div>
             `;
             tSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
@@ -208,52 +356,49 @@
         });
     }
 
-    // إدارة العمليات المالية
     function processTransaction() {
         const custId = parseInt(document.getElementById('transTarget').value);
         const amt = parseFloat(document.getElementById('transAmount').value);
-        const type = document.getElementById('transType').value;
         const cur = document.getElementById('transCurrency').value;
         const note = document.getElementById('transNote').value;
 
-        if(custId && amt > 0) {
-            transactions.push({
-                id: Date.now(),
-                custId,
-                amount: type === 'deposit' ? amt : -amt,
-                cur,
-                note,
-                type,
-                date: new Date().toLocaleDateString('ar-SA')
-            });
-            save(); alert('✅ تم الحفظ');
-            document.getElementById('transAmount').value = '';
-            renderCustomers();
-        }
+        if(!custId || !amt) return alert('يرجى ملء البيانات الأساسية');
+
+        transactions.push({
+            id: Date.now(),
+            custId,
+            amount: currentTransType === 'deposit' ? amt : -amt,
+            cur,
+            note: note || (currentTransType === 'deposit' ? 'إيداع نقدي' : 'سحب نقدي'),
+            type: currentTransType,
+            date: new Date().toLocaleDateString('ar-SA')
+        });
+        save(); alert('🚀 تم توثيق العملية بنجاح');
+        document.getElementById('transAmount').value = '';
+        renderCustomers();
+        switchTab('customers');
     }
 
-    // تصفية الحساب (العبقرية التنفيذية)
     function settleAccount() {
         const cid = parseInt(document.getElementById('reportTarget').value);
-        if(!cid) return alert('اختر عميلاً أولاً');
+        if(!cid) return alert('يرجى تحديد عميل للتصفية');
         
-        if(confirm('سيتم إجراء عملية تصفية لجعل حساب العميل (صفر). هل أنت متأكد؟')) {
+        if(confirm('هل تود تصفية كافة العملات لهذا العميل وجعل الرصيد (صفر)؟')) {
             currencies.forEach(cur => {
                 const bal = getBalance(cid, cur);
                 if(bal !== 0) {
                     transactions.push({
                         id: Date.now() + Math.random(),
                         custId: cid,
-                        amount: -bal, // عكس الرصيد الحالي
+                        amount: -bal,
                         cur: cur,
-                        note: 'تصفية حساب نهائية',
+                        note: 'تصفية حساب محاسبية شاملة',
                         type: bal > 0 ? 'withdraw' : 'deposit',
                         date: new Date().toLocaleDateString('ar-SA')
                     });
                 }
             });
             save(); updateAccountReport(); renderCustomers();
-            alert('✅ تم تصفية الحساب بنجاح');
         }
     }
 
@@ -262,31 +407,32 @@
         const container = document.getElementById('detailedReport');
         if(!cid) return container.innerHTML = '';
 
-        const filter = transactions.filter(t => t.custId === cid);
+        const filter = transactions.filter(t => t.custId === cid).reverse();
         container.innerHTML = filter.map(t => `
-            <div class="bg-white p-4 rounded-2xl border flex justify-between shadow-sm items-center">
-                <div><p class="font-bold text-slate-700 ${t.note.includes('تصفية') ? 'text-blue-600' : ''}">${t.note || 'عملية'}</p><p class="text-[10px] text-gray-400">${t.date}</p></div>
-                <div class="text-left font-black ${t.amount > 0 ? 'text-green-600' : 'text-red-600'}">
-                    ${Math.abs(t.amount).toLocaleString()} ${t.cur}
-                    <p class="text-[8px] uppercase">${t.amount > 0 ? 'إيداع (له)' : 'سحب (عليه)'}</p>
+            <div class="bg-white p-5 rounded-3xl border border-slate-50 flex justify-between items-center hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full ${t.amount > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'} flex items-center justify-center">
+                        <i class="fas ${t.amount > 0 ? 'fa-plus' : 'fa-minus'} text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="font-black text-slate-700 ${t.note.includes('تصفية') ? 'text-blue-600' : ''}">${t.note}</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">${t.date}</p>
+                    </div>
+                </div>
+                <div class="text-left font-black">
+                    <p class="${t.amount > 0 ? 'text-green-600' : 'text-red-600'} text-lg">${Math.abs(t.amount).toLocaleString()}</p>
+                    <p class="text-[9px] text-slate-300 uppercase">${t.cur}</p>
                 </div>
             </div>
-        `).join('') || '<p class="text-center text-gray-300">لا توجد حركات</p>';
+        `).join('') || '<div class="text-center py-10 text-slate-300 font-bold italic">لا توجد بيانات مسجلة</div>';
     }
 
     function getBalance(cid, cur) {
         return transactions.filter(t => t.custId === cid && t.cur === cur).reduce((s, t) => s + t.amount, 0);
     }
 
-    // الإعدادات والأمان
-    function addCur() {
-        const c = document.getElementById('newCur').value;
-        if(c && !currencies.includes(c)) { currencies.push(c); save(); renderCurOptions(); document.getElementById('newCur').value=''; }
-    }
-
     function renderCurOptions() {
         document.getElementById('transCurrency').innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join('');
-        document.getElementById('curList').innerHTML = currencies.map(c => `<span class="bg-slate-100 px-3 py-1 rounded-full text-xs font-bold">${c}</span>`).join('');
     }
 
     function saveSettings() {
@@ -294,38 +440,41 @@
         settings.email = document.getElementById('setEmail').value;
         const p = document.getElementById('setPass').value;
         if(p) settings.password = p;
-        save(); alert('✅ تم التحديث');
+        save(); alert('✅ تم تحديث الإعدادات بنجاح');
         location.reload();
     }
 
-    function forgotPass() {
-        alert(`سيتم إرسال تعليمات الاستعادة إلى: ${settings.email}\n(محاكاة: كلمة مرورك هي ${settings.password})`);
-    }
-
     function save() {
-        localStorage.setItem('c_v36', JSON.stringify(customers));
-        localStorage.setItem('t_v36', JSON.stringify(transactions));
-        localStorage.setItem('cur_v36', JSON.stringify(currencies));
-        localStorage.setItem('s_v36', JSON.stringify(settings));
+        localStorage.setItem('c_v37', JSON.stringify(customers));
+        localStorage.setItem('t_v37', JSON.stringify(transactions));
+        localStorage.setItem('cur_v37', JSON.stringify(currencies));
+        localStorage.setItem('s_v37', JSON.stringify(settings));
     }
 
     function exportData() {
-        const blob = new Blob([JSON.stringify({customers, transactions, currencies, settings})], {type: 'application/json'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_v36.json`; a.click();
+        const data = JSON.stringify({customers, transactions, currencies, settings});
+        const blob = new Blob([data], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `Diamond_V37_Backup_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
     }
 
     function importData(e) {
         const reader = new FileReader();
         reader.onload = (f) => {
             const d = JSON.parse(f.target.result);
-            customers = d.customers; transactions = d.transactions; currencies = d.currencies; settings = d.settings;
+            customers = d.customers; transactions = d.transactions; 
+            currencies = d.currencies; settings = d.settings;
             save(); location.reload();
         };
         reader.readAsText(e.target.files[0]);
     }
 
-    function delCust(id) { if(confirm('حذف العميل نهائياً؟')) { customers = customers.filter(c => c.id !== id); save(); renderCustomers(); } }
-    function editCust(id) { const n = prompt('الاسم الجديد:'); if(n) { const idx = customers.findIndex(c => c.id === id); customers[idx].name = n; save(); renderCustomers(); } }
+    function delCust(id) { if(confirm('⚠️ هل أنت متأكد من حذف العميل؟ سيتم مسح كافة عملياته أيضاً.')) { customers = customers.filter(c => c.id !== id); transactions = transactions.filter(t => t.custId !== id); save(); renderCustomers(); } }
+    function editCust(id) { const n = prompt('تعديل اسم العميل:'); if(n) { const idx = customers.findIndex(c => c.id === id); customers[idx].name = n; save(); renderCustomers(); } }
+    function logout() { if(confirm('تسجيل الخروج؟')) location.reload(); }
+    function forgotPass() { alert(`نظام الاسترداد: الرمز أُرسل لبريدك الإلكتروني.\n(تلميح: كلمة السر الحالية هي ${settings.password})`); }
 </script>
 </body>
 </html>
