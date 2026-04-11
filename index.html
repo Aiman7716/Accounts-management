@@ -3,40 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الاستراتيجي الماسي V34</title>
+    <title>الاستراتيجي الماسي V35</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .card-debt { background-color: #fef2f2; border: 1px solid #fee2e2; } /* أحمر - عليه */
+        .card-credit { background-color: #f0fdf4; border: 1px solid #dcfce7; } /* أخضر - له */
     </style>
 </head>
-<body class="min-h-screen pb-24 text-slate-800">
+<body class="min-h-screen pb-24">
 
 <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900 p-4">
-    <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl border-t-8 border-blue-600">
-        <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold">تسجيل الدخول</h2>
-            <p class="text-slate-400 text-sm">مرحباً م. أيمن في نسختك المطورة</p>
-        </div>
-        <div class="space-y-4">
-            <input type="text" id="usernameInput" placeholder="اسم المستخدم" class="w-full p-4 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200 outline-none">
-            <input type="password" id="passwordInput" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 rounded-xl border-none ring-1 ring-gray-200 outline-none">
-            <button onclick="login()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-blue-700 transition-all">دخول</button>
-        </div>
+    <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl text-center border-t-8 border-blue-600">
+        <h2 class="text-2xl font-bold mb-6">الدخول الآمن</h2>
+        <input type="password" id="passInput" placeholder="كلمة المرور" class="w-full p-4 bg-gray-50 rounded-2xl mb-4 border-none ring-1 ring-gray-200 outline-none">
+        <button onclick="login()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg">دخول</button>
     </div>
 </div>
 
 <div id="mainApp" class="hidden">
-    <header class="bg-white border-b p-4 sticky top-0 z-40 shadow-sm flex justify-between items-center">
-        <div>
-            <h1 class="font-bold text-xl text-blue-700">الاستراتيجي <span class="text-slate-800">V34</span></h1>
+    <header class="bg-white p-4 shadow-sm flex justify-between items-center sticky top-0 z-40">
+        <h1 class="font-bold text-xl text-blue-700">الاستراتيجي الماسي <span class="text-slate-400">V35</span></h1>
+        <div class="flex items-center gap-2">
+            <span id="topUserName" class="text-xs font-bold text-slate-600"></span>
+            <button onclick="logout()" class="text-red-400"><i class="fas fa-power-off"></i></button>
         </div>
-        <span id="topUserName" class="text-xs font-bold bg-blue-50 px-3 py-1 rounded-full border border-blue-100">تحميل...</span>
     </header>
 
     <main class="max-w-6xl mx-auto p-4 space-y-6">
@@ -45,93 +40,102 @@
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                 <h2 class="font-bold mb-4 flex items-center"><i class="fas fa-user-plus ml-2 text-blue-600"></i>إدارة العملاء</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <input type="text" id="custName" placeholder="اسم العميل" class="p-3 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100">
-                    <input type="text" id="custPhone" placeholder="الجوال" class="p-3 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100">
-                    <input type="text" id="custAddress" placeholder="العنوان" class="p-3 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100">
-                    <button onclick="addCustomer()" class="bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-all">حفظ العميل</button>
+                    <input type="text" id="custName" placeholder="اسم العميل" class="p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100">
+                    <input type="text" id="custPhone" placeholder="الجوال" class="p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100">
+                    <input type="number" id="custInitBal" placeholder="رصيد افتتاحي" class="p-4 bg-gray-50 rounded-2xl outline-none ring-1 ring-gray-100">
+                    <button onclick="addCustomer()" class="bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all">حفظ</button>
                 </div>
             </div>
             <div id="customerList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
-        <div id="transactions" class="tab-content space-y-4">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                <h2 class="font-bold mb-4"><i class="fas fa-plus-circle ml-2 text-green-600"></i>إضافة عملية جديدة</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <select id="transTarget" class="p-3 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100"></select>
-                    <select id="transCurrency" class="p-3 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100"></select>
-                    <input type="number" id="transAmount" placeholder="المبلغ" class="p-3 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100">
-                    <select id="transType" class="p-3 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100">
-                        <option value="debt">مديونية عليه (+)</option>
-                        <option value="pay">سداد له (-)</option>
+        <div id="transactions" class="tab-content">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 max-w-2xl mx-auto">
+                <h2 class="text-xl font-bold mb-6 flex items-center"><i class="fas fa-coins ml-2 text-green-600"></i>تسجيل حركة مالية</h2>
+                <div class="space-y-4">
+                    <select id="transTarget" class="w-full p-4 bg-gray-50 rounded-2xl ring-1 ring-gray-100 outline-none font-bold"></select>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" id="transAmount" placeholder="المبلغ" class="p-4 bg-gray-50 rounded-2xl ring-1 ring-gray-100 outline-none font-bold text-center text-xl">
+                        <select id="transCurrency" class="p-4 bg-gray-50 rounded-2xl ring-1 ring-gray-100 outline-none"></select>
+                    </div>
+                    <select id="transType" class="w-full p-4 bg-gray-50 rounded-2xl ring-1 ring-gray-100 outline-none font-bold">
+                        <option value="withdraw">سحب (رصيد عليه +)</option>
+                        <option value="deposit">إيداع (رصيد له -)</option>
                     </select>
+                    <textarea id="transNote" placeholder="ملاحظات العملية..." class="w-full p-4 bg-gray-50 rounded-2xl h-24 ring-1 ring-gray-100 outline-none"></textarea>
+                    <button onclick="processTransaction()" class="w-full bg-slate-800 text-white font-bold py-5 rounded-2xl shadow-xl hover:bg-slate-900 transition-all">حفظ العملية</button>
                 </div>
-                <textarea id="transNote" placeholder="ملاحظات إضافية..." class="w-full p-3 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100 mb-4 h-20"></textarea>
-                <div class="mb-4">
-                    <label class="block text-xs text-gray-400 mb-1">صورة السند (اختياري)</label>
-                    <input type="file" id="transImage" class="text-sm">
-                </div>
-                <button onclick="processTransaction()" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg">تأكيد وحفظ العملية</button>
             </div>
         </div>
 
-        <div id="reports" class="tab-content space-y-4">
+        <div id="reports" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border-r-8 border-blue-600">
+                    <p class="text-xs text-gray-400">إجمالي عدد العملاء</p>
+                    <h3 id="statCustCount" class="text-2xl font-bold">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border-r-8 border-green-600">
+                    <p class="text-xs text-gray-400">إجمالي إيداعات اليوم</p>
+                    <h3 id="statTodayDeposit" class="text-2xl font-bold text-green-600">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border-r-8 border-red-600">
+                    <p class="text-xs text-gray-400">إجمالي سحوبات اليوم</p>
+                    <h3 id="statTodayWithdraw" class="text-2xl font-bold text-red-600">0</h3>
+                </div>
+            </div>
             <div class="bg-white p-6 rounded-3xl shadow-sm">
-                <h2 class="font-bold mb-4">كشف حساب تفصيلي</h2>
-                <select id="reportTarget" onchange="updateAccountReport()" class="w-full p-3 bg-gray-50 rounded-xl mb-6 outline-none ring-1 ring-gray-100"></select>
-                <div id="detailedReport" class="overflow-x-auto">
-                    </div>
+                <h2 class="font-bold mb-4">كشف تفصيلي لكل عميل</h2>
+                <select id="reportTarget" onchange="updateAccountReport()" class="w-full p-4 bg-gray-50 rounded-2xl mb-4 outline-none"></select>
+                <div id="detailedReport" class="space-y-2"></div>
             </div>
         </div>
 
         <div id="settings" class="tab-content space-y-4">
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                <h2 class="font-bold mb-4">إدارة العملات</h2>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="newCurrency" placeholder="مثلاً: ريال سعودي" class="flex-1 p-3 bg-gray-50 rounded-xl outline-none ring-1 ring-gray-100">
-                    <button onclick="addCurrency()" class="bg-green-600 text-white px-6 rounded-xl font-bold">إضافة</button>
-                </div>
-                <div id="currencyList" class="flex flex-wrap gap-2"></div>
+                <h2 class="font-bold mb-4"><i class="fas fa-lock ml-2 text-blue-600"></i>تغيير كلمة المرور</h2>
+                <input type="password" id="newPass" placeholder="كلمة المرور الجديدة" class="w-full p-4 bg-gray-50 rounded-2xl mb-4 outline-none">
+                <button onclick="saveNewPass()" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold">تحديث السر</button>
             </div>
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                 <h2 class="font-bold mb-4">الملف الشخصي</h2>
-                 <input type="text" id="setFullName" placeholder="الاسم" class="w-full p-3 bg-gray-50 rounded-xl mb-2 outline-none">
-                 <input type="email" id="setEmail" placeholder="البريد" class="w-full p-3 bg-gray-50 rounded-xl mb-4 outline-none">
-                 <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">حفظ التغييرات</button>
+                <h2 class="font-bold mb-4"><i class="fas fa-database ml-2 text-green-600"></i>النسخ الاحتياطي</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="exportData()" class="bg-slate-800 text-white py-4 rounded-2xl font-bold"><i class="fas fa-download ml-2"></i>تصدير نسخة</button>
+                    <label class="bg-slate-100 text-slate-800 py-4 rounded-2xl font-bold flex items-center justify-center cursor-pointer">
+                        <i class="fas fa-upload ml-2"></i>استعادة نسخة
+                        <input type="file" onchange="importData(event)" class="hidden">
+                    </label>
+                </div>
             </div>
         </div>
 
     </main>
 
-    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 shadow-xl z-50">
-        <button onclick="switchTab('customers')" class="nav-btn flex flex-col items-center text-blue-600"><i class="fas fa-users text-lg"></i><span class="text-[10px] mt-1">العملاء</span></button>
-        <button onclick="switchTab('transactions')" class="nav-btn flex flex-col items-center text-gray-400"><i class="fas fa-exchange-alt text-lg"></i><span class="text-[10px] mt-1">العمليات</span></button>
-        <button onclick="switchTab('reports')" class="nav-btn flex flex-col items-center text-gray-400"><i class="fas fa-chart-bar text-lg"></i><span class="text-[10px] mt-1">التقارير</span></button>
-        <button onclick="switchTab('settings')" class="nav-btn flex flex-col items-center text-gray-400"><i class="fas fa-cog text-lg"></i><span class="text-[10px] mt-1">الإعدادات</span></button>
+    <nav class="fixed bottom-0 w-full bg-white border-t flex justify-around p-3 shadow-2xl z-50">
+        <button onclick="switchTab('customers')" class="nav-btn flex flex-col items-center text-blue-600"><i class="fas fa-users text-xl"></i><span class="text-[10px] mt-1 font-bold">العملاء</span></button>
+        <button onclick="switchTab('transactions')" class="nav-btn flex flex-col items-center text-gray-400"><i class="fas fa-exchange-alt text-xl"></i><span class="text-[10px] mt-1 font-bold">العمليات</span></button>
+        <button onclick="switchTab('reports')" class="nav-btn flex flex-col items-center text-gray-400"><i class="fas fa-chart-pie text-xl"></i><span class="text-[10px] mt-1 font-bold">التقارير</span></button>
+        <button onclick="switchTab('settings')" class="nav-btn flex flex-col items-center text-gray-400"><i class="fas fa-cog text-xl"></i><span class="text-[10px] mt-1 font-bold">الإعدادات</span></button>
     </nav>
 </div>
 
 <script>
-    let customers = JSON.parse(localStorage.getItem('cust_v34')) || [];
-    let transactions = JSON.parse(localStorage.getItem('trans_v34')) || [];
-    let currencies = JSON.parse(localStorage.getItem('cur_v34')) || ['ريال سعودي', 'ريال يمني', 'دولار'];
-    let userData = JSON.parse(localStorage.getItem('user_v34')) || { fullName: "أيمن الحميري", username: "admin", password: "123", email: "ayman@mail.com" };
+    let customers = JSON.parse(localStorage.getItem('c_v35')) || [];
+    let transactions = JSON.parse(localStorage.getItem('t_v35')) || [];
+    let currencies = JSON.parse(localStorage.getItem('cur_v35')) || ['ريال سعودي', 'دولار'];
+    let settings = JSON.parse(localStorage.getItem('s_v35')) || { password: "123", name: "م. أيمن" };
 
     function login() {
-        const u = document.getElementById('usernameInput').value;
-        const p = document.getElementById('passwordInput').value;
-        if(u === userData.username && p === userData.password) {
-            document.getElementById('loginScreen').classList.add('hidden');
+        if(document.getElementById('passInput').value === settings.password) {
+            document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').classList.remove('hidden');
             initApp();
-        } else { alert('خطأ في البيانات!'); }
+        } else { alert('كلمة المرور خاطئة!'); }
     }
 
     function initApp() {
-        document.getElementById('topUserName').innerText = userData.fullName;
+        document.getElementById('topUserName').innerText = settings.name;
         renderCustomers();
         renderCurrencyOptions();
-        renderSettings();
     }
 
     function switchTab(tabId) {
@@ -139,188 +143,150 @@
         document.getElementById(tabId).classList.add('active');
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-blue-600', 'text-gray-400'));
         event.currentTarget.classList.replace('text-gray-400', 'text-blue-600');
+        if(tabId === 'reports') updateReportsStats();
     }
 
-    // إدارة العملاء
     function addCustomer() {
         const name = document.getElementById('custName').value;
         const phone = document.getElementById('custPhone').value;
-        const address = document.getElementById('custAddress').value;
+        const initBal = parseFloat(document.getElementById('custInitBal').value) || 0;
         if(!name) return;
-        customers.push({ id: Date.now(), name, phone, address });
-        saveData();
-        renderCustomers();
-        document.getElementById('custName').value = '';
-    }
-
-    function deleteCustomer(id) {
-        if(confirm('هل تريد حذف العميل نهائياً؟')) {
-            customers = customers.filter(c => c.id !== id);
-            transactions = transactions.filter(t => t.custId !== id);
-            saveData();
-            renderCustomers();
+        const id = Date.now();
+        customers.push({ id, name, phone });
+        if(initBal !== 0) {
+            transactions.push({ id: id+1, custId: id, amount: initBal, cur: currencies[0], type: 'withdraw', note: 'رصيد افتتاحي', date: new Date().toLocaleDateString() });
         }
+        save(); renderCustomers();
+        document.getElementById('custName').value = '';
+        document.getElementById('custInitBal').value = '';
     }
 
     function renderCustomers() {
         const list = document.getElementById('customerList');
-        const transSelect = document.getElementById('transTarget');
-        const reportSelect = document.getElementById('reportTarget');
-        list.innerHTML = ''; transSelect.innerHTML = ''; reportSelect.innerHTML = '<option value="">اختر عميل للكشف</option>';
-        
+        const tSel = document.getElementById('transTarget');
+        const rSel = document.getElementById('reportTarget');
+        list.innerHTML = ''; tSel.innerHTML = ''; rSel.innerHTML = '<option value="">اختر عميل للكشف</option>';
+
         customers.forEach(c => {
+            const balances = currencies.map(cur => {
+                const b = getBalance(c.id, cur);
+                return b !== 0 ? `<div class="flex justify-between font-bold ${b > 0 ? 'text-red-600' : 'text-green-600'}"><span>${cur}:</span><span>${b.toLocaleString()}</span></div>` : '';
+            }).join('');
+
+            const overall = currencies.reduce((sum, cur) => sum + getBalance(c.id, cur), 0);
+            const cardClass = overall > 0 ? 'card-debt' : (overall < 0 ? 'card-credit' : 'bg-white');
+
             list.innerHTML += `
-                <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-lg">${c.name}</h3>
-                        <div class="flex gap-2">
-                            <button onclick="deleteCustomer(${c.id})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-400"><i class="fas fa-phone ml-1"></i> ${c.phone || 'بدون هاتف'}</p>
-                    <p class="text-xs text-gray-400 mb-4"><i class="fas fa-map-marker-alt ml-1"></i> ${c.address || 'بدون عنوان'}</p>
-                    <div id="balances-${c.id}" class="space-y-1 border-t pt-2"></div>
+                <div class="${cardClass} p-5 rounded-3xl shadow-sm transition-all relative group">
+                    <button onclick="deleteCust(${c.id})" class="absolute top-4 left-4 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-trash"></i></button>
+                    <h3 class="font-bold text-lg">${c.name}</h3>
+                    <p class="text-xs text-gray-400 mb-4">${c.phone || 'بدون هاتف'}</p>
+                    <div class="space-y-1 border-t pt-3">${balances || '<p class="text-[10px] text-gray-300 italic text-center">لا توجد مديونيات</p>'}</div>
                 </div>
             `;
-            transSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-            reportSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-            renderBalances(c.id);
+            tSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            rSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
         });
     }
 
-    function renderBalances(custId) {
-        const container = document.getElementById(`balances-${custId}`);
-        if(!container) return;
-        currencies.forEach(cur => {
-            const bal = getBalance(custId, cur);
-            if(bal !== 0) {
-                container.innerHTML += `
-                    <div class="flex justify-between text-sm font-bold">
-                        <span>${cur}:</span>
-                        <span class="${bal >= 0 ? 'text-red-600' : 'text-green-600'}">${bal.toLocaleString()}</span>
-                    </div>
-                `;
-            }
-        });
-    }
-
-    // إدارة العمليات والعملات
-    function addCurrency() {
-        const cur = document.getElementById('newCurrency').value;
-        if(cur && !currencies.includes(cur)) {
-            currencies.push(cur);
-            saveData();
-            renderCurrencyOptions();
-            document.getElementById('newCurrency').value = '';
-        }
-    }
-
-    function renderCurrencyOptions() {
-        const curSelect = document.getElementById('transCurrency');
-        const curList = document.getElementById('currencyList');
-        curSelect.innerHTML = ''; curList.innerHTML = '';
-        currencies.forEach(cur => {
-            curSelect.innerHTML += `<option value="${cur}">${cur}</option>`;
-            curList.innerHTML += `<span class="bg-gray-100 px-3 py-1 rounded-full text-xs font-bold">${cur}</span>`;
-        });
-    }
-
-    async function processTransaction() {
+    function processTransaction() {
         const custId = parseInt(document.getElementById('transTarget').value);
-        const cur = document.getElementById('transCurrency').value;
         const amount = parseFloat(document.getElementById('transAmount').value);
         const type = document.getElementById('transType').value;
+        const cur = document.getElementById('transCurrency').value;
         const note = document.getElementById('transNote').value;
-        const imgFile = document.getElementById('transImage').files[0];
-        
-        let imgBase64 = '';
-        if(imgFile) {
-            imgBase64 = await toBase64(imgFile);
-        }
 
         if(custId && amount > 0) {
             transactions.push({
                 id: Date.now(),
                 custId,
                 cur,
-                amount: type === 'debt' ? amount : -amount,
+                amount: type === 'withdraw' ? amount : -amount,
+                type,
                 note,
-                img: imgBase64,
-                date: new Date().toLocaleString('ar-SA')
+                date: new Date().toLocaleDateString('ar-SA'),
+                fullDate: new Date().toISOString()
             });
-            saveData();
-            alert('تم حفظ العملية');
-            location.reload();
+            save();
+            alert('تم الحفظ بنجاح!');
+            document.getElementById('transAmount').value = '';
+            renderCustomers();
         }
     }
 
-    // التقارير
+    function updateReportsStats() {
+        const today = new Date().toLocaleDateString('ar-SA');
+        const todayTrans = transactions.filter(t => t.date === today);
+        const deposits = todayTrans.filter(t => t.type === 'deposit').reduce((s, t) => s + Math.abs(t.amount), 0);
+        const withdraws = todayTrans.filter(t => t.type === 'withdraw').reduce((s, t) => s + t.amount, 0);
+
+        document.getElementById('statCustCount').innerText = customers.length;
+        document.getElementById('statTodayDeposit').innerText = deposits.toLocaleString();
+        document.getElementById('statTodayWithdraw').innerText = withdraws.toLocaleString();
+    }
+
     function updateAccountReport() {
-        const custId = parseInt(document.getElementById('reportTarget').value);
+        const cid = parseInt(document.getElementById('reportTarget').value);
         const container = document.getElementById('detailedReport');
-        if(!custId) { container.innerHTML = ''; return; }
+        if(!cid) return container.innerHTML = '';
 
-        let html = `<table class="w-full text-right text-sm">
-            <thead><tr class="bg-gray-50 border-b">
-                <th class="p-2">التاريخ</th><th class="p-2">العملة</th><th class="p-2">المبلغ</th><th class="p-2">ملاحظات</th>
-            </tr></thead><tbody>`;
-
-        const filtered = transactions.filter(t => t.custId === custId);
-        filtered.forEach(t => {
-            html += `<tr class="border-b">
-                <td class="p-2 text-[10px]">${t.date}</td>
-                <td class="p-2">${t.cur}</td>
-                <td class="p-2 font-bold ${t.amount >= 0 ? 'text-red-500' : 'text-green-500'}">${Math.abs(t.amount).toLocaleString()}</td>
-                <td class="p-2 text-xs">${t.note}</td>
-            </tr>`;
-        });
-
-        html += `</tbody></table><div class="mt-6 space-y-2">`;
-        currencies.forEach(cur => {
-            const bal = getBalance(custId, cur);
-            if(bal !== 0) {
-                html += `<div class="p-3 bg-slate-50 rounded-xl flex justify-between font-bold">
-                    <span>الرصيد النهائي (${cur}):</span>
-                    <span class="${bal >= 0 ? 'text-red-600' : 'text-green-600'}">${bal.toLocaleString()} ${bal >= 0 ? '(عليه)' : '(له)'}</span>
-                </div>`;
-            }
-        });
-        html += `</div>`;
+        const filter = transactions.filter(t => t.custId === cid);
+        let html = filter.map(t => `
+            <div class="bg-white p-3 rounded-xl border flex justify-between items-center text-sm shadow-sm">
+                <div><p class="font-bold text-slate-700">${t.note || 'عملية مالية'}</p><p class="text-[10px] text-gray-400">${t.date}</p></div>
+                <div class="text-left font-black ${t.amount > 0 ? 'text-red-500' : 'text-green-500'}">
+                    ${Math.abs(t.amount).toLocaleString()} ${t.cur}
+                    <p class="text-[8px] uppercase">${t.type === 'withdraw' ? 'سحب (عليه)' : 'إيداع (له)'}</p>
+                </div>
+            </div>
+        `).join('') || '<p class="text-center text-gray-300">لا توجد حركات</p>';
+        
         container.innerHTML = html;
     }
 
-    // دوال مساعدة
-    function getBalance(custId, cur) {
-        return transactions.filter(t => t.custId === custId && t.cur === cur)
-                           .reduce((sum, t) => sum + t.amount, 0);
+    function getBalance(cid, cur) {
+        return transactions.filter(t => t.custId === cid && t.cur === cur).reduce((s, t) => s + t.amount, 0);
     }
 
-    function saveData() {
-        localStorage.setItem('cust_v34', JSON.stringify(customers));
-        localStorage.setItem('trans_v34', JSON.stringify(transactions));
-        localStorage.setItem('cur_v34', JSON.stringify(currencies));
-        localStorage.setItem('user_v34', JSON.stringify(userData));
+    function save() {
+        localStorage.setItem('c_v35', JSON.stringify(customers));
+        localStorage.setItem('t_v35', JSON.stringify(transactions));
+        localStorage.setItem('cur_v35', JSON.stringify(currencies));
+        localStorage.setItem('s_v35', JSON.stringify(settings));
     }
 
-    function renderSettings() {
-        document.getElementById('setFullName').value = userData.fullName;
-        document.getElementById('setEmail').value = userData.email;
+    function renderCurrencyOptions() {
+        const s = document.getElementById('transCurrency');
+        s.innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join('');
     }
 
-    function saveSettings() {
-        userData.fullName = document.getElementById('setFullName').value;
-        userData.email = document.getElementById('setEmail').value;
-        saveData();
-        alert('تم الحفظ');
-        location.reload();
+    function saveNewPass() {
+        const p = document.getElementById('newPass').value;
+        if(p) { settings.password = p; save(); alert('تم تحديث كلمة المرور'); }
     }
 
-    const toBase64 = file => new Promise((resolve, reject) => {
+    function exportData() {
+        const data = JSON.stringify({ customers, transactions, currencies, settings });
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `backup_${new Date().toLocaleDateString()}.json`;
+        a.click();
+    }
+
+    function importData(e) {
+        const file = e.target.files[0];
         const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
+        reader.onload = (f) => {
+            const d = JSON.parse(f.target.result);
+            customers = d.customers; transactions = d.transactions; currencies = d.currencies; settings = d.settings;
+            save(); location.reload();
+        };
+        reader.readAsText(file);
+    }
+
+    function deleteCust(id) { if(confirm('حذف العميل؟')) { customers = customers.filter(c => c.id !== id); save(); renderCustomers(); } }
+    function logout() { location.reload(); }
 </script>
 </body>
 </html>
