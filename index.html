@@ -3,320 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الاستراتيجي الماسي V42.2 - الإصدار النخبوي</title>
+    <title>الاستراتيجي الماسي - التحديث التراكمي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap');
-        :root { --primary: #2563eb; --whatsapp: #25d366; --danger: #ef4444; --bg: #f1f5f9; }
-        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg); color: #0f172a; overflow-x: hidden; }
-        .tab-content { display: none; animation: slideUp 0.4s ease-out; }
+        :root { --primary: #2563eb; --whatsapp: #25d366; --bg: #f8fafc; }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg); color: #1e293b; touch-action: manipulation; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
         .tab-content.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .card-premium { background: white; border-radius: 2rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
-        .nav-active { color: var(--primary); font-weight: 900; transform: translateY(-5px); }
-        .nav-active i { filter: drop-shadow(0 0 10px rgba(37,99,235,0.4)); }
-        #toast-container { position: fixed; top: 20px; left: 20px; z-index: 9999; }
-        .toast { padding: 1rem 2rem; border-radius: 1.5rem; color: white; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; margin-bottom: 10px; animation: bounceIn 0.5s; }
-        @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.05); } 70% { transform: scale(0.9); } 100% { transform: scale(1); opacity: 1; } }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.9); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card-premium { background: white; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .nav-active { color: var(--primary); font-weight: 900; }
+        #toast-container { position: fixed; top: env(safe-area-inset-top, 20px); left: 20px; z-index: 9999; }
+        .toast { padding: 12px 24px; border-radius: 15px; color: white; font-weight: bold; box-shadow: 0 10px 15px rgba(0,0,0,0.1); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(5px); }
         .modal.active { display: flex; }
-        .ai-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37,99,235,0.4); } 70% { box-shadow: 0 0 0 15px rgba(37,99,235,0); } 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); } }
+        .trans-deposit { background-color: #f0fdf4; border-right: 4px solid #10b981; }
+        .trans-withdraw { background-color: #fef2f2; border-right: 4px solid #ef4444; }
         @media print { .no-print { display: none !important; } .print-only { display: block !important; } }
+        /* تحسينات الجوال */
+        @media (max-width: 640px) {
+            .nav-text { font-size: 10px; }
+            .card-premium { border-radius: 20px; padding: 15px !important; }
+            h1 { font-size: 16px !important; }
+        }
     </style>
 </head>
-<body class="min-h-screen pb-32">
+<body class="pb-24">
 
 <div id="toast-container"></div>
 
-<div id="authScreen" class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900 p-6 no-print">
-    <div class="bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl text-center border-b-8 border-blue-600">
+<div id="authScreen" class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900 p-4 no-print">
+    <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl text-center">
         <div id="loginBox">
-            <div class="w-20 h-20 bg-blue-600 rounded-[1.5rem] mx-auto mb-6 flex items-center justify-center text-white text-3xl shadow-xl shadow-blue-200 rotate-3"><i class="fas fa-fingerprint"></i></div>
-            <h2 class="text-3xl font-black mb-8 text-slate-800">النظام الماسي</h2>
-            <div class="space-y-4">
-                <input type="email" id="loginEmail" placeholder="البريد السحابي" class="w-full p-5 bg-slate-50 rounded-2xl ring-1 ring-slate-200 outline-none font-bold focus:ring-2 focus:ring-blue-600 transition-all">
-                <input type="password" id="loginPass" placeholder="كلمة المرور" class="w-full p-5 bg-slate-50 rounded-2xl ring-1 ring-slate-200 outline-none font-bold focus:ring-2 focus:ring-blue-600 transition-all">
-                <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-blue-700 transition-all text-lg">دخول للنظام</button>
-                <button onclick="toggleAuth(false)" class="text-slate-400 font-bold text-sm mt-6 hover:text-blue-600 transition-colors">ليس لديك حساب؟ انضم للنخبة</button>
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl shadow-lg"><i class="fas fa-lock"></i></div>
+            <h2 class="text-xl font-black mb-6">الدخول السحابي</h2>
+            <div class="space-y-3">
+                <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold border focus:border-blue-500 transition-all">
+                <input type="password" id="loginPass" placeholder="كلمة المرور" class="w-full p-4 bg-slate-50 rounded-xl outline-none font-bold border focus:border-blue-500 transition-all">
+                <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-md active:scale-95 transition-all">دخول</button>
+                <button onclick="toggleAuth(false)" class="text-slate-400 text-xs mt-4">إنشاء حساب جديد</button>
             </div>
         </div>
         <div id="signUpBox" class="hidden">
-            <h2 class="text-2xl font-black mb-8">إنشاء بروفايل سحابي</h2>
-            <div class="space-y-4">
-                <input type="text" id="regName" placeholder="الاسم الكامل" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 font-bold">
-                <input type="email" id="regEmail" placeholder="البريد الإلكتروني" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 font-bold">
-                <input type="password" id="regPass" placeholder="كلمة المرور" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 font-bold">
-                <button onclick="handleSignUp()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-xl">تفعيل الحساب</button>
-                <button onclick="toggleAuth(true)" class="text-slate-400 font-bold text-sm mt-4">لديك حساب؟ سجل دخولك</button>
+            <h2 class="text-xl font-black mb-6">تسجيل حساب</h2>
+            <div class="space-y-3">
+                <input type="text" id="regName" placeholder="الاسم" class="w-full p-4 bg-slate-50 rounded-xl border font-bold">
+                <input type="email" id="regEmail" placeholder="البريد" class="w-full p-4 bg-slate-50 rounded-xl border font-bold">
+                <input type="password" id="regPass" placeholder="كلمة المرور" class="w-full p-4 bg-slate-50 rounded-xl border font-bold">
+                <button onclick="handleSignUp()" class="w-full bg-slate-900 text-white font-black py-4 rounded-xl">تفعيل</button>
+                <button onclick="toggleAuth(true)" class="text-slate-400 text-xs mt-4">لديك حساب؟</button>
             </div>
         </div>
     </div>
 </div>
 
 <div id="mainApp" class="hidden">
-    <header class="bg-white/90 backdrop-blur-xl p-5 sticky top-0 z-40 flex justify-between items-center px-8 no-print border-b border-slate-100 shadow-sm">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3"><i class="fas fa-gem text-xl text-blue-400"></i></div>
-            <div>
-                <h1 class="font-black text-lg text-slate-800">الاستراتيجي <span class="text-blue-600">الماسي</span></h1>
-                <div class="flex items-center gap-2 mt-0.5">
-                    <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest">ELITE V42.2</span>
-                </div>
-            </div>
+    <header class="bg-white p-4 sticky top-0 z-40 flex justify-between items-center px-6 no-print border-b shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md"><i class="fas fa-gem"></i></div>
+            <h1 class="font-black text-slate-800">الاستراتيجي الماسي</h1>
         </div>
         <div class="flex gap-2">
-            <button onclick="autoRestore()" class="w-10 h-10 bg-slate-50 rounded-xl text-blue-600 flex items-center justify-center border border-slate-100 hover:bg-blue-600 hover:text-white transition-all"><i class="fas fa-sync-alt"></i></button>
-            <button onclick="logout()" class="w-10 h-10 bg-red-50 rounded-xl text-red-500 flex items-center justify-center border border-red-100 hover:bg-red-500 hover:text-white transition-all"><i class="fas fa-power-off"></i></button>
+            <button onclick="autoRestore()" class="w-9 h-9 bg-blue-50 rounded-lg text-blue-600 flex items-center justify-center"><i class="fas fa-sync-alt"></i></button>
+            <button onclick="logout()" class="w-9 h-9 bg-red-50 rounded-lg text-red-500 flex items-center justify-center"><i class="fas fa-power-off"></i></button>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-4 md:p-8 space-y-10">
+    <main class="p-4 max-w-4xl mx-auto space-y-6">
         
-        <div id="customers" class="tab-content active space-y-8">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6 no-print">
-                <div class="relative w-full md:w-1/2">
-                    <i class="fas fa-search absolute right-6 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="searchCust" oninput="renderCustomers()" placeholder="ابحث عن عميل بالاسم أو الرقم..." class="w-full p-5 pr-14 bg-white rounded-[2.5rem] shadow-sm border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-600 outline-none font-bold text-lg transition-all">
+        <div id="customers" class="tab-content active space-y-4">
+            <input type="text" id="searchCust" oninput="renderCustomers()" placeholder="ابحث عن عميل..." class="w-full p-4 rounded-2xl bg-white border shadow-sm font-bold">
+            <button onclick="openModal('custModal')" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black">+ إضافة عميل</button>
+            <div id="customerList" class="space-y-3"></div>
+        </div>
+
+        <div id="transactions" class="tab-content space-y-4">
+            <div class="card-premium p-6 space-y-4">
+                <h2 class="font-black text-center text-lg">قيد عملية</h2>
+                <select id="transTarget" class="w-full p-4 bg-slate-50 rounded-xl font-bold border outline-none"></select>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="transAmount" placeholder="المبلغ" class="p-4 bg-slate-50 rounded-xl font-black text-center text-xl border">
+                    <select id="transCurrency" class="p-4 bg-slate-50 rounded-xl font-bold border"></select>
                 </div>
-                <button onclick="openModal('custModal')" class="w-full md:w-auto bg-blue-600 text-white px-12 py-5 rounded-[2.5rem] font-black shadow-2xl shadow-blue-200 hover:scale-105 active:scale-95 transition-all">+ عميل جديد</button>
-            </div>
-            
-            <div class="card-premium overflow-hidden no-print">
-                <table class="w-full text-right">
-                    <thead class="bg-slate-50 text-slate-400 text-[11px] font-black uppercase">
-                        <tr>
-                            <th class="px-8 py-6">#</th>
-                            <th class="px-8 py-6">العميل</th>
-                            <th class="px-8 py-6">الحساب الحالي</th>
-                            <th class="px-8 py-6 text-center">الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customerTableBody" class="divide-y divide-slate-100 text-slate-700 font-bold"></tbody>
-                </table>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="setTransType('deposit')" id="typeDep" class="p-4 rounded-xl bg-emerald-50 text-emerald-600 font-black border-2 border-emerald-500">له (+)</button>
+                    <button onclick="setTransType('withdraw')" id="typeWith" class="p-4 rounded-xl bg-slate-50 text-slate-400 font-black border-2 border-transparent text-sm">عليه (-)</button>
+                </div>
+                <textarea id="transNote" placeholder="بيان العملية..." class="w-full p-4 bg-slate-50 rounded-xl h-24 font-bold border outline-none text-sm"></textarea>
+                <button onclick="processTransaction()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black shadow-lg">حفظ سحابي</button>
             </div>
         </div>
 
-        <div id="transactions" class="tab-content max-w-2xl mx-auto no-print">
-            <div id="aiPrediction" class="mb-6 p-5 bg-gradient-to-r from-blue-600 to-indigo-800 rounded-[2rem] text-white shadow-2xl hidden ai-pulse">
-                <div class="flex items-center gap-3 mb-2">
-                    <i class="fas fa-robot text-2xl"></i>
-                    <span class="font-black text-xs uppercase tracking-widest">تنبؤ مالي ذكي</span>
-                </div>
-                <p id="aiPredictionText" class="text-sm font-bold leading-relaxed opacity-90 italic"></p>
-            </div>
-
-            <div class="card-premium p-8 md:p-12">
-                <h2 class="text-2xl font-black text-center mb-10 text-slate-800 italic underline decoration-blue-500/30 decoration-8 underline-offset-8">قيد معاملة جديدة</h2>
-                <div class="space-y-6">
-                    <div>
-                        <label class="text-[10px] font-black text-slate-400 mr-4 mb-2 block">اختر العميل المستهدف</label>
-                        <select id="transTarget" onchange="runAIPrediction()" class="w-full p-5 bg-slate-50 rounded-2xl ring-1 ring-slate-100 font-bold outline-none text-lg border-r-4 border-blue-500"></select>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-[10px] font-black text-slate-400 mr-4 mb-2 block">المبلغ</label>
-                            <input type="number" id="transAmount" placeholder="0.00" class="w-full p-5 bg-slate-50 rounded-2xl ring-1 ring-slate-100 text-center font-black text-3xl text-blue-600 outline-none focus:ring-2 focus:ring-blue-600 transition-all">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-slate-400 mr-4 mb-2 block">العملة</label>
-                            <select id="transCurrency" class="w-full p-5 bg-slate-50 rounded-2xl ring-1 ring-slate-100 font-bold outline-none text-lg"></select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <button onclick="setTransType('deposit')" id="typeDep" class="p-5 rounded-2xl bg-emerald-50 text-emerald-600 font-black border-2 border-emerald-500 shadow-sm transition-all text-sm">إيداع (+ له)</button>
-                        <button onclick="setTransType('withdraw')" id="typeWith" class="p-5 rounded-2xl bg-slate-50 text-slate-400 font-black border-2 border-transparent transition-all text-sm">سحب (- عليه)</button>
-                    </div>
-
-                    <div class="space-y-4 pt-4 border-t border-slate-50">
-                        <label class="text-[10px] font-black text-slate-400 mr-4 block">بيان العملية (اختياري)</label>
-                        <textarea id="transNote" placeholder="اكتب تفاصيل العملية هنا..." class="w-full p-5 bg-slate-50 rounded-2xl h-32 ring-1 ring-slate-100 outline-none font-bold text-slate-600 text-sm focus:ring-2 focus:ring-blue-600 transition-all"></textarea>
-                        
-                        <button onclick="processTransaction()" class="w-full bg-slate-900 text-white font-black py-6 rounded-[2.5rem] shadow-2xl hover:bg-blue-600 transition-all text-xl uppercase tracking-widest flex items-center justify-center gap-3">
-                           <i class="fas fa-cloud-upload-alt"></i> حفظ في السحابة
-                        </button>
-                    </div>
-                </div>
+        <div id="reports" class="tab-content space-y-4">
+            <div class="card-premium p-6">
+                <select id="reportTarget" onchange="updateAccountReport()" class="w-full p-4 bg-slate-50 rounded-xl font-bold border mb-4"></select>
+                <div id="detailedReport" class="space-y-3"></div>
+                <div id="reportFooter" class="mt-6 pt-4 border-t-2 border-dashed space-y-2"></div>
             </div>
         </div>
 
-        <div id="reports" class="tab-content space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 no-print" id="totalSummaryCards"></div>
-
-            <div class="card-premium p-8 no-print">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
-                    <h2 class="text-xl font-black italic">تحليل كشوفات الحساب</h2>
-                    <div class="flex gap-2 w-full md:w-auto">
-                        <button onclick="settleAccount()" class="flex-1 bg-red-50 text-red-600 px-6 py-3 rounded-2xl font-black border border-red-100 hover:bg-red-600 hover:text-white transition-all">تصفية</button>
-                        <button onclick="window.print()" class="flex-1 bg-slate-900 text-white px-6 py-3 rounded-2xl font-black shadow-lg">طباعة</button>
-                    </div>
-                </div>
-                <select id="reportTarget" onchange="updateAccountReport()" class="w-full p-5 bg-slate-50 rounded-2xl ring-1 ring-slate-100 font-bold outline-none text-lg mb-8 border-r-4 border-blue-500"></select>
-                
-                <div id="customerCurrenciesGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"></div>
-            </div>
-            
-            <div id="printArea" class="px-2">
-                <div class="print-only hidden text-center mb-10">
-                    <h1 class="text-3xl font-black text-blue-600">كشف حساب احترافي - الاستراتيجي الماسي</h1>
-                    <p id="printInfo" class="text-lg mt-2 font-bold text-slate-500"></p>
-                </div>
-                <div id="detailedReport" class="space-y-4"></div>
-            </div>
-        </div>
-
-        <div id="settings" class="tab-content space-y-8 max-w-4xl mx-auto no-print">
-            <div class="card-premium p-10">
-                <h2 class="text-xl font-black mb-8 border-b pb-4 text-slate-800">إدارة البروفايل السحابي</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 mr-2 uppercase">اسم المنشأة</label><input type="text" id="setUserName" class="w-full p-4 bg-slate-50 rounded-2xl font-bold ring-1 ring-slate-200"></div>
-                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 mr-2 uppercase">البريد السحابي</label><input type="email" id="setUserEmail" class="w-full p-4 bg-slate-50 rounded-2xl font-bold ring-1 ring-slate-200"></div>
-                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 mr-2 uppercase">الجوال</label><input type="text" id="setUserPhone" class="w-full p-4 bg-slate-50 rounded-2xl font-bold ring-1 ring-slate-200"></div>
-                    <div class="space-y-2"><label class="text-[10px] font-black text-slate-400 mr-2 uppercase">كلمة المرور</label><input type="password" id="setUserPass" placeholder="******" class="w-full p-4 bg-slate-50 rounded-2xl font-bold ring-1 ring-slate-200"></div>
-                </div>
-                <button onclick="updateUserProfile()" class="mt-8 bg-blue-600 text-white px-10 py-5 rounded-2xl font-black shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all">تحديث السحابة</button>
-            </div>
-
-            <div class="card-premium p-10">
-                <h2 class="text-xl font-black mb-8 border-b pb-4 text-slate-800">العملات والبيانات</h2>
-                <div class="flex gap-3 mb-8">
-                    <input type="text" id="newCurName" placeholder="إضافة عملة جديدة..." class="flex-1 p-5 bg-slate-50 rounded-2xl font-bold ring-1 ring-slate-200 outline-none">
-                    <button onclick="addCurrency()" class="bg-emerald-600 text-white px-8 rounded-2xl font-black">إضافة</button>
-                </div>
-                <div id="curTags" class="flex flex-wrap gap-2 mb-10"></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="exportData()" class="p-8 bg-slate-900 text-white rounded-[2rem] font-black shadow-xl hover:bg-blue-600 transition-all flex flex-col items-center gap-3"><i class="fas fa-file-download text-2xl"></i> تصدير JSON</button>
-                    <button onclick="autoRestore()" class="p-8 bg-blue-50 text-blue-600 rounded-[2rem] font-black border-2 border-blue-200 shadow-xl flex flex-col items-center gap-3"><i class="fas fa-cloud-download-alt text-2xl"></i> استرجاع سحابي</button>
-                </div>
+        <div id="settings" class="tab-content space-y-4">
+            <div class="card-premium p-6">
+                <h3 class="font-black mb-4">الإعدادات</h3>
+                <input type="text" id="setUserName" placeholder="الاسم" class="w-full p-4 bg-slate-50 rounded-xl mb-2 font-bold border">
+                <button onclick="updateUserProfile()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black">حفظ التعديلات</button>
             </div>
         </div>
     </main>
 
-    <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[94%] max-w-lg bg-white/95 backdrop-blur-2xl border border-white p-3 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex justify-around z-50 no-print">
-        <button onclick="switchTab('customers')" id="nav-customers" class="nav-btn flex flex-col items-center text-slate-300 nav-active transition-all duration-300"><i class="fas fa-users-viewfinder text-xl"></i><span class="text-[9px] font-black mt-1 uppercase">العملاء</span></button>
-        <button onclick="switchTab('transactions')" id="nav-transactions" class="nav-btn flex flex-col items-center text-slate-300 transition-all duration-300"><i class="fas fa-plus-circle text-xl"></i><span class="text-[9px] font-black mt-1 uppercase">عملية</span></button>
-        <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn flex flex-col items-center text-slate-300 transition-all duration-300"><i class="fas fa-file-invoice-dollar text-xl"></i><span class="text-[9px] font-black mt-1 uppercase">التقارير</span></button>
-        <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center text-slate-300 transition-all duration-300"><i class="fas fa-fingerprint text-xl"></i><span class="text-[9px] font-black mt-1 uppercase">النظام</span></button>
+    <nav class="fixed bottom-0 inset-x-0 bg-white border-t flex justify-around p-2 pb-6 z-50 no-print shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+        <button onclick="switchTab('customers')" id="nav-customers" class="nav-btn flex flex-col items-center text-slate-400 nav-active">
+            <i class="fas fa-users text-lg"></i><span class="nav-text font-bold mt-1">العملاء</span>
+        </button>
+        <button onclick="switchTab('transactions')" id="nav-transactions" class="nav-btn flex flex-col items-center text-slate-400">
+            <i class="fas fa-plus-circle text-lg"></i><span class="nav-text font-bold mt-1">عملية</span>
+        </button>
+        <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn flex flex-col items-center text-slate-400">
+            <i class="fas fa-file-alt text-lg"></i><span class="nav-text font-bold mt-1">التقارير</span>
+        </button>
+        <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center text-slate-400">
+            <i class="fas fa-cog text-lg"></i><span class="nav-text font-bold mt-1">النظام</span>
+        </button>
     </nav>
+</div>
 
-    <div id="custModal" class="modal no-print">
-        <div class="bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl relative border-t-8 border-blue-600">
-            <h3 id="modalTitle" class="text-2xl font-black mb-8 text-slate-800 italic">إدارة العميل</h3>
-            <div class="space-y-4">
-                <input type="hidden" id="editCustId">
-                <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 mr-2">الاسم</label><input type="text" id="custName" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-100 font-bold outline-none"></div>
-                <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 mr-2">الهاتف</label><input type="text" id="custPhone" placeholder="9665..." class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-100 font-bold outline-none"></div>
-                <div id="initRow" class="grid grid-cols-2 gap-3 pt-2">
-                    <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 mr-2">المبلغ الأول</label><input type="number" id="custInitAmount" class="w-full p-4 bg-slate-50 rounded-2xl font-black text-center text-xl"></div>
-                    <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 mr-2">النوع</label><select id="custInitType" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-xs"><option value="credit">له (+)</option><option value="debt">عليه (-)</option></select></div>
-                </div>
-                <div class="flex gap-3 pt-8">
-                    <button onclick="saveCustomer()" class="flex-1 bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-blue-100">حفظ</button>
-                    <button onclick="closeModal('custModal')" class="px-8 bg-slate-50 text-slate-400 font-bold rounded-2xl">إلغاء</button>
-                </div>
-            </div>
+<div id="custModal" class="modal no-print">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl">
+        <h3 class="font-black mb-4">إضافة عميل</h3>
+        <input type="text" id="custName" placeholder="الاسم الكامل" class="w-full p-4 bg-slate-50 rounded-xl mb-3 font-bold border">
+        <input type="text" id="custPhone" placeholder="رقم الواتساب (مثال: 966...)" class="w-full p-4 bg-slate-50 rounded-xl mb-4 font-bold border">
+        <div class="flex gap-2">
+            <button onclick="saveCustomer()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-black">حفظ</button>
+            <button onclick="closeModal('custModal')" class="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold">إلغاء</button>
         </div>
     </div>
 </div>
 
 <script>
-    // المحرك المحاسبي النخبوي V42.2
     let users = JSON.parse(localStorage.getItem('elite_users_v42')) || [];
     let currentUser = JSON.parse(sessionStorage.getItem('active_elite_user')) || null;
-    let customers = [], transactions = [], currencies = [], currentType = 'deposit';
+    let customers = [], transactions = [], currencies = ['ريال سعودي', 'دولار'], currentType = 'deposit';
 
     window.onload = () => { if(currentUser) showApp(); };
 
     function showToast(msg, type = 'success') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
-        toast.className = `toast`;
-        toast.style.background = type === 'success' ? '#10b981' : (type === 'danger' ? '#ef4444' : '#25d366');
-        toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':(type==='whatsapp'?'fa-whatsapp':'fa-exclamation-triangle')}"></i> <span>${msg}</span>`;
+        toast.className = 'toast';
+        toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+        toast.innerHTML = `<i class="fas fa-info-circle"></i> <span class="text-xs">${msg}</span>`;
         container.appendChild(toast);
-        setTimeout(() => { toast.style.transform = 'translateY(-100px)'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
+        setTimeout(() => toast.remove(), 3000);
     }
 
     function toggleAuth(isLogin) { document.getElementById('loginBox').classList.toggle('hidden', !isLogin); document.getElementById('signUpBox').classList.toggle('hidden', isLogin); }
-    function handleSignUp() { const n = document.getElementById('regName').value, e = document.getElementById('regEmail').value, p = document.getElementById('regPass').value; if(n && e && p) { if(users.find(u=>u.email===e)) return showToast('البريد مسجل', 'danger'); users.push({ name: n, email: e, pass: p, phone: "", currencies: ['ريال سعودي', 'دولار'], data: { customers: [], transactions: [] } }); saveUsers(); showToast('تم التفعيل!'); toggleAuth(true); } }
-    function handleLogin() { const e = document.getElementById('loginEmail').value, p = document.getElementById('loginPass').value; const user = users.find(u => u.email === e && u.pass === p); if(user) { currentUser = user; sessionStorage.setItem('active_elite_user', JSON.stringify(user)); showApp(); showToast(`أهلاً بك م. أيمن`); } else showToast('خطأ في البيانات', 'danger'); }
+    function handleSignUp() { 
+        const n = document.getElementById('regName').value, e = document.getElementById('regEmail').value, p = document.getElementById('regPass').value; 
+        if(n && e && p) { users.push({ name: n, email: e, pass: p, data: { customers: [], transactions: [] } }); saveUsers(); showToast('تم التفعيل!'); toggleAuth(true); } 
+    }
+    function handleLogin() { 
+        const e = document.getElementById('loginEmail').value, p = document.getElementById('loginPass').value; 
+        const user = users.find(u => u.email === e && u.pass === p); 
+        if(user) { currentUser = user; sessionStorage.setItem('active_elite_user', JSON.stringify(user)); showApp(); } else showToast('خطأ بالبيانات', 'danger');
+    }
 
     function showApp() {
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         customers = currentUser.data.customers || [];
         transactions = currentUser.data.transactions || [];
-        currencies = currentUser.currencies || ['ريال سعودي', 'دولار'];
-        renderCustomers(); renderCurOptions(); fillSettings(); renderGrandTotal();
+        renderCustomers(); renderCurOptions();
     }
 
     function renderCustomers() {
         const q = document.getElementById('searchCust').value.toLowerCase();
-        const body = document.getElementById('customerTableBody');
+        const list = document.getElementById('customerList');
         const tSel = document.getElementById('transTarget'), rSel = document.getElementById('reportTarget');
-        body.innerHTML = ''; tSel.innerHTML = ''; rSel.innerHTML = '<option value="">اختر عميل للكشف</option>';
-        customers.filter(c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q))).forEach((c, idx) => {
-            const bals = currencies.map(cur => { const b = getBal(c.id, cur); return b !== 0 ? `<div class="${b>0?'text-emerald-600':'text-red-500'} text-[9px] font-black">${Math.abs(b).toLocaleString()} ${cur}</div>` : ''; }).join('');
-            body.innerHTML += `<tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-all"><td class="px-8 py-5 text-[10px] text-slate-300">${idx+1}</td><td class="px-8 py-5 text-sm font-black text-slate-800">${c.name}<br><span class="text-[9px] text-slate-400 font-normal">${c.phone || ''}</span></td><td class="px-8 py-5">${bals || '<span class="text-slate-200 text-[10px] italic">0.00</span>'}</td><td class="px-8 py-5 text-center"><button onclick="openModal('custModal', ${c.id})" class="text-blue-500 mx-2 hover:scale-125 transition-transform"><i class="fas fa-edit"></i></button><button onclick="delCust(${c.id})" class="text-red-200 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
+        list.innerHTML = ''; tSel.innerHTML = ''; rSel.innerHTML = '<option value="">اختر عميل للتقرير</option>';
+        customers.filter(c => c.name.toLowerCase().includes(q)).forEach(c => {
+            const b = getBal(c.id, currencies[0]);
+            list.innerHTML += `<div class="card-premium p-4 flex justify-between items-center shadow-sm">
+                <div><p class="font-black text-sm">${c.name}</p><p class="text-[10px] text-slate-400">${c.phone || 'بدون رقم'}</p></div>
+                <div class="text-left"><p class="font-black text-sm ${b>=0?'text-emerald-600':'text-red-500'}">${b.toLocaleString()} ${currencies[0]}</p></div>
+            </div>`;
             tSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
             rSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-        });
-    }
-
-    function renderGrandTotal() {
-        const container = document.getElementById('totalSummaryCards');
-        container.innerHTML = '';
-        currencies.forEach(cur => {
-            const total = transactions.filter(t => t.cur === cur).reduce((s, t) => s + t.amount, 0);
-            container.innerHTML += `<div class="card-premium p-6 text-center border-b-4 ${total >= 0 ? 'border-emerald-500' : 'border-red-500'} shadow-sm"><p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">${cur}</p><h3 class="text-2xl font-black ${total >= 0 ? 'text-emerald-600' : 'text-red-600'}">${Math.abs(total).toLocaleString()}</h3></div>`;
         });
     }
 
     function updateAccountReport() {
         const cid = parseInt(document.getElementById('reportTarget').value);
         const container = document.getElementById('detailedReport');
-        const curGrid = document.getElementById('customerCurrenciesGrid');
-        if(!cid) { container.innerHTML = ''; curGrid.innerHTML = ''; return; }
+        const footer = document.getElementById('reportFooter');
+        if(!cid) { container.innerHTML = ''; footer.innerHTML = ''; return; }
         const c = customers.find(x => x.id === cid);
-        document.getElementById('printInfo').innerText = `حساب: ${c.name} | التاريخ: ${new Date().toLocaleDateString('ar-SA')}`;
-        curGrid.innerHTML = '';
-        currencies.forEach(cur => { const b = getBal(cid, cur); if(b !== 0) curGrid.innerHTML += `<div class="bg-white p-3 rounded-2xl border-2 ${b>0?'border-emerald-50':'border-red-50'} text-center shadow-sm"><p class="text-[8px] font-black text-slate-400 uppercase">${cur}</p><p class="text-lg font-black ${b>0?'text-emerald-600':'text-red-600'}">${Math.abs(b).toLocaleString()}</p></div>`; });
         const filtered = transactions.filter(t => t.custId === cid).reverse();
-        container.innerHTML = filtered.map(t => `<div class="bg-white p-5 rounded-[1.5rem] border flex justify-between items-center shadow-sm group">
-            <div class="flex items-center gap-4"><button onclick="sendWA('${c.phone}', '${t.amount}', '${t.cur}', '${t.note}')" class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-sm"><i class="fab fa-whatsapp text-lg"></i></button><div><p class="font-black text-slate-800 text-sm leading-tight">${t.note}</p><p class="text-[9px] text-slate-400 font-bold">${t.date}</p></div></div>
-            <div class="text-left"><p class="font-black text-lg ${t.amount>0?'text-emerald-600':'text-red-600'}">${t.amount>0?'+':'-'} ${Math.abs(t.amount).toLocaleString()}</p><p class="text-[8px] font-black text-slate-300 uppercase tracking-tighter">${t.cur}</p></div></div>`).join('');
+        
+        // التلوين الشرطي في الكشف
+        container.innerHTML = filtered.map(t => `
+            <div class="p-4 rounded-xl flex justify-between items-center ${t.amount>0?'trans-deposit':'trans-withdraw'}">
+                <div class="flex items-center gap-3">
+                    <button onclick="sendWA(${c.id}, ${t.id})" class="text-emerald-500 bg-white w-8 h-8 rounded-full shadow-sm flex items-center justify-center"><i class="fab fa-whatsapp"></i></button>
+                    <div><p class="font-black text-xs">${t.note}</p><p class="text-[9px] text-slate-400">${t.date}</p></div>
+                </div>
+                <p class="font-black text-sm ${t.amount>0?'text-emerald-600':'text-red-600'}">${t.amount>0?'+':'-'} ${Math.abs(t.amount).toLocaleString()}</p>
+            </div>
+        `).join('');
+
+        // إجمالي الرصيد أسفل الكشف
+        footer.innerHTML = currencies.map(cur => {
+            const b = getBal(cid, cur);
+            return `<div class="flex justify-between items-center font-black"><span>إجمالي الرصيد (${cur}):</span><span class="${b>=0?'text-emerald-600':'text-red-600'}">${b.toLocaleString()}</span></div>`;
+        }).join('');
     }
 
-    function runAIPrediction() {
-        const cid = parseInt(document.getElementById('transTarget').value);
-        const box = document.getElementById('aiPrediction');
-        if(!cid) { box.classList.add('hidden'); return; }
-        box.classList.remove('hidden');
-        const c = customers.find(x => x.id === cid);
-        const totalDebt = currencies.reduce((sum, cur) => sum + Math.abs(getBal(cid, cur)), 0);
-        document.getElementById('aiPredictionText').innerText = totalDebt > 10000 ? `تنبؤ: العميل ${c.name} لديه تراكم مالي كبير (${totalDebt.toLocaleString()}). ننصح بطلب دفعة سداد لتقليل المخاطر.` : `تنبؤ: حركة العميل ${c.name} مستقرة جداً وضمن حدود الثقة الآمنة.`;
+    function sendWA(custId, transId) {
+        const c = customers.find(x => x.id === custId);
+        const t = transactions.find(x => x.id === transId);
+        if(!c.phone) return showToast('لا يوجد رقم واتساب!', 'danger');
+        const b = getBal(c.id, t.cur);
+        const type = t.amount > 0 ? 'إيداع' : 'سحب';
+        const msg = `تم قيد عملية ${type} لحسابكم لدينا: ${c.name}\nالمبلغ: ${Math.abs(t.amount)} ${t.cur}\nالبيان: ${t.note}\nإجمالي حسابكم الحالي هو: ${b} ${t.cur}`;
+        window.open(`https://wa.me/${c.phone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
-    function sendWA(phone, amount, cur, note) { if(!phone) return showToast('لا يوجد هاتف', 'danger'); window.open(`https://wa.me/${phone}?text=${encodeURIComponent('عملية جديدة من الاستراتيجي الماسي:\nقيمة: '+Math.abs(amount)+' '+cur+'\nالبيان: '+note)}`, '_blank'); }
-    function setTransType(t) { currentType = t; document.getElementById('typeDep').className = t==='deposit'?'p-5 rounded-2xl bg-emerald-50 text-emerald-600 font-black border-2 border-emerald-500 transition-all':'p-5 rounded-2xl bg-slate-50 text-slate-400 font-black border-2 border-transparent transition-all'; document.getElementById('typeWith').className = t==='withdraw'?'p-5 rounded-2xl bg-red-50 text-red-600 font-black border-2 border-red-500 transition-all':'p-5 rounded-2xl bg-slate-50 text-slate-400 font-black border-2 border-transparent transition-all'; }
-    function processTransaction() { const id = parseInt(document.getElementById('transTarget').value), amt = parseFloat(document.getElementById('transAmount').value), cur = document.getElementById('transCurrency').value, note = document.getElementById('transNote').value; if(!id || !amt) return showToast('أكمل البيانات', 'danger'); transactions.push({ id: Date.now(), custId: id, amount: currentType==='deposit'?amt:-amt, cur, note: note || 'عملية نقدية', date: new Date().toLocaleDateString('ar-SA') }); save(); renderCustomers(); showToast('تم الحفظ سحابياً'); document.getElementById('transAmount').value = ''; document.getElementById('transNote').value = ''; runAIPrediction(); }
-    function save() { currentUser.data = { customers, transactions }; const idx = users.findIndex(u => u.email === currentUser.email); users[idx] = currentUser; localStorage.setItem('elite_users_v42', JSON.stringify(users)); localStorage.setItem(`last_sync_${currentUser.email}`, JSON.stringify(currentUser.data)); sessionStorage.setItem('active_elite_user', JSON.stringify(currentUser)); renderGrandTotal(); }
-    function autoRestore() { const last = localStorage.getItem(`last_sync_${currentUser.email}`); if(last) { currentUser.data = JSON.parse(last); save(); location.reload(); } }
-    function getBal(cid, cur) { return transactions.filter(t => t.custId === cid && t.cur === cur).reduce((s, t) => s + t.amount, 0); }
-    function openModal(id, cid=null) { document.getElementById(id).classList.add('active'); if(cid) { const c=customers.find(x=>x.id===cid); document.getElementById('editCustId').value=c.id; document.getElementById('custName').value=c.name; document.getElementById('custPhone').value=c.phone||''; document.getElementById('initRow').style.display='none'; } else { document.getElementById('editCustId').value=''; document.getElementById('custName').value=''; document.getElementById('custPhone').value=''; document.getElementById('initRow').style.display='grid'; } }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    function saveCustomer() { const id=document.getElementById('editCustId').value, n=document.getElementById('custName').value, p=document.getElementById('custPhone').value; if(!n) return; if(id) { const idx=customers.findIndex(x=>x.id==id); customers[idx].name=n; customers[idx].phone=p; } else { const newId=Date.now(); customers.push({id:newId, name:n, phone:p}); const amt=parseFloat(document.getElementById('custInitAmount').value)||0, type=document.getElementById('custInitType').value; if(amt!==0) transactions.push({id:Date.now()+1, custId:newId, amount:type==='credit'?amt:-amt, cur:currencies[0], note:'رصيد افتتاحي', date:new Date().toLocaleDateString('ar-SA')}); } save(); renderCustomers(); closeModal('custModal'); }
-    function switchTab(t) { document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('nav-active')); document.getElementById('nav-'+t).classList.add('nav-active'); }
-    function renderCurOptions() { document.getElementById('transCurrency').innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join(''); }
-    function fillSettings() { document.getElementById('setUserName').value=currentUser.name; document.getElementById('setUserEmail').value=currentUser.email; document.getElementById('setUserPhone').value=currentUser.phone||''; document.getElementById('curTags').innerHTML = currencies.map(c => `<span class="bg-blue-50 text-blue-600 px-4 py-1 rounded-full text-[10px] font-black border">${c}</span>`).join(''); }
-    function logout() { sessionStorage.clear(); location.reload(); }
+    function processTransaction() {
+        const id = parseInt(document.getElementById('transTarget').value), amt = parseFloat(document.getElementById('transAmount').value), cur = document.getElementById('transCurrency').value, note = document.getElementById('transNote').value;
+        if(!id || !amt) return showToast('أكمل البيانات', 'danger');
+        transactions.push({ id: Date.now(), custId: id, amount: currentType==='deposit'?amt:-amt, cur, note: note || 'عملية نقدية', date: new Date().toLocaleDateString('ar-SA') });
+        save(); renderCustomers(); showToast('تم الحفظ');
+        document.getElementById('transAmount').value = ''; document.getElementById('transNote').value = '';
+    }
+
+    function save() { 
+        currentUser.data = { customers, transactions }; 
+        const idx = users.findIndex(u => u.email === currentUser.email); users[idx] = currentUser; 
+        localStorage.setItem('elite_users_v42', JSON.stringify(users)); 
+        sessionStorage.setItem('active_elite_user', JSON.stringify(currentUser)); 
+    }
     function saveUsers() { localStorage.setItem('elite_users_v42', JSON.stringify(users)); }
-    function delCust(id) { if(confirm('هل تريد حذف العميل وكافة حركاته نهائياً؟')) { customers = customers.filter(c => c.id !== id); transactions = transactions.filter(t => t.custId !== id); save(); renderCustomers(); showToast('تم الحذف بنجاح', 'danger'); } }
-    function addCurrency() { const c = document.getElementById('newCurName').value; if(c && !currencies.includes(c)) { currencies.push(c); save(); renderCurOptions(); fillSettings(); showToast(`تمت إضافة ${c}`); document.getElementById('newCurName').value = ''; } }
-    function exportData() { const data = JSON.stringify(currentUser.data); const blob = new Blob([data], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Diamond_Elite_Backup.json`; a.click(); }
+    function getBal(cid, cur) { return transactions.filter(t => t.custId === cid && t.cur === cur).reduce((s, t) => s + t.amount, 0); }
+    function setTransType(t) { 
+        currentType = t; 
+        document.getElementById('typeDep').className = t==='deposit'?'p-4 rounded-xl bg-emerald-50 text-emerald-600 font-black border-2 border-emerald-500':'p-4 rounded-xl bg-slate-50 text-slate-400 font-bold border-2 border-transparent text-sm';
+        document.getElementById('typeWith').className = t==='withdraw'?'p-4 rounded-xl bg-red-50 text-red-600 font-black border-2 border-red-500':'p-4 rounded-xl bg-slate-50 text-slate-400 font-bold border-2 border-transparent text-sm';
+    }
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function saveCustomer() {
+        const n = document.getElementById('custName').value, p = document.getElementById('custPhone').value;
+        if(n) { customers.push({ id: Date.now(), name: n, phone: p }); save(); renderCustomers(); closeModal('custModal'); showToast('تمت الإضافة'); }
+    }
+    function switchTab(t) { 
+        document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active')); 
+        document.getElementById(t).classList.add('active'); 
+        document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('nav-active'));
+        document.getElementById('nav-'+t).classList.add('nav-active');
+    }
+    function renderCurOptions() { document.getElementById('transCurrency').innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join(''); }
+    function logout() { sessionStorage.clear(); location.reload(); }
+    function autoRestore() { location.reload(); }
 </script>
 </body>
 </html>
