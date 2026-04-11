@@ -3,32 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الاستراتيجي الماسي V39 - النسخة المستقرة</title>
+    <title>الاستراتيجي الماسي V40 - النسخة الاحترافية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap');
-        :root { --primary: #2563eb; --success: #059669; --danger: #dc2626; --bg: #f8fafc; }
-        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg); color: #1e293b; }
-        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
+        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f8fafc; }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg); color: #1e293b; overflow-x: hidden; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid #e2e8f0; }
-        .card-premium { background: white; border-radius: 24px; box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9; }
+        .card-premium { background: white; border-radius: 24px; border: 1px solid #f1f5f9; transition: all 0.3s ease; }
         .nav-active { color: var(--primary); font-weight: 900; }
-        .status-credit { border-right: 6px solid var(--success); }
-        .status-debt { border-right: 6px solid var(--danger); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        
+        /* نظام الإشعارات الأنيق */
+        #toast-container { position: fixed; top: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { padding: 16px 24px; border-radius: 16px; color: white; font-weight: bold; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); animation: slideIn 0.3s ease forwards; display: flex; align-items: center; gap: 10px; min-width: 250px; }
+        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast-success { background: var(--success); }
+        .toast-danger { background: var(--danger); }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
         .modal.active { display: flex; }
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white; }
-            .card-premium { border: 1px solid #000; box-shadow: none; margin-bottom: 10px; }
-        }
+        
+        @media print { .no-print { display: none !important; } .print-only { display: block !important; } }
     </style>
 </head>
 <body class="min-h-screen pb-28">
+
+<div id="toast-container"></div>
 
 <div id="authScreen" class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950 p-6 no-print">
     <div class="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl">
@@ -37,7 +40,7 @@
             <div class="space-y-4">
                 <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 outline-none font-bold">
                 <input type="password" id="loginPass" placeholder="كلمة المرور" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 outline-none font-bold">
-                <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg">دخول</button>
+                <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-blue-700 transition-all">دخول</button>
                 <p class="text-center text-sm font-bold text-slate-500">ليس لديك حساب؟ <button onclick="toggleAuth(false)" class="text-blue-600 underline">إنشاء حساب</button></p>
             </div>
         </div>
@@ -47,49 +50,65 @@
                 <input type="text" id="regName" placeholder="الاسم الكامل" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 font-bold">
                 <input type="email" id="regEmail" placeholder="البريد الإلكتروني" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 font-bold">
                 <input type="password" id="regPass" placeholder="كلمة المرور" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 font-bold">
-                <button onclick="handleSignUp()" class="w-full bg-green-600 text-white font-black py-4 rounded-2xl shadow-lg">تسجيل</button>
-                <button onclick="toggleAuth(true)" class="w-full text-slate-400 text-sm font-bold">لديك حساب؟ ادخل هنا</button>
+                <button onclick="handleSignUp()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-emerald-700">تسجيل</button>
+                <button onclick="toggleAuth(true)" class="w-full text-slate-400 text-sm font-bold mt-2">لديك حساب؟ ادخل هنا</button>
             </div>
         </div>
     </div>
 </div>
 
 <div id="mainApp" class="hidden">
-    <header class="glass-header p-4 sticky top-0 z-40 flex justify-between items-center px-6 no-print">
+    <header class="bg-white/80 backdrop-blur-md p-4 sticky top-0 z-40 flex justify-between items-center px-6 no-print border-b">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fas fa-gem"></i></div>
-            <h1 class="font-black text-lg">الاستراتيجي <span class="text-blue-600">V39</span></h1>
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fas fa-chart-line"></i></div>
+            <h1 class="font-black text-lg">الاستراتيجي <span class="text-blue-600">V40</span></h1>
         </div>
         <div class="flex gap-2">
-            <button onclick="location.reload()" class="w-10 h-10 bg-slate-100 rounded-full text-slate-600"><i class="fas fa-sync-alt"></i></button>
+            <button onclick="showToast('تم تحديث البيانات بنجاح', 'success')" class="w-10 h-10 bg-slate-100 rounded-full text-slate-600"><i class="fas fa-sync-alt"></i></button>
             <button onclick="logout()" class="w-10 h-10 bg-red-50 rounded-full text-red-500"><i class="fas fa-power-off"></i></button>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-5 space-y-8">
+    <main class="max-w-6xl mx-auto p-5 space-y-6">
         <div id="customers" class="tab-content active space-y-6">
-            <div class="flex justify-between items-center no-print">
-                <h2 class="text-xl font-black">قائمة العملاء</h2>
-                <button onclick="openModal('custModal')" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black shadow-lg shadow-blue-100">+ إضافة عميل</button>
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 no-print">
+                <div class="relative w-full md:w-96">
+                    <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchCust" oninput="renderCustomers()" placeholder="ابحث عن اسم العميل..." class="w-full p-4 pr-12 bg-white rounded-2xl shadow-sm border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-600 outline-none font-bold">
+                </div>
+                <button onclick="openModal('custModal')" class="w-full md:w-auto bg-blue-600 text-white px-8 py-4 rounded-2xl font-black shadow-xl hover:bg-blue-700 transition-all">+ إضافة عميل جديد</button>
             </div>
-            <div id="customerList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            
+            <div class="overflow-hidden card-premium no-print">
+                <table class="w-full text-right">
+                    <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
+                        <tr>
+                            <th class="px-6 py-4">#</th>
+                            <th class="px-6 py-4">العميل</th>
+                            <th class="px-6 py-4">الأرصدة</th>
+                            <th class="px-6 py-4 text-center">إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerTableBody" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
         </div>
 
         <div id="transactions" class="tab-content max-w-2xl mx-auto no-print">
-            <div class="card-premium p-8">
-                <h2 class="text-xl font-black text-center mb-6">تسجيل عملية مالية</h2>
-                <div class="space-y-4">
-                    <select id="transTarget" class="w-full p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 font-bold outline-none"></select>
+            <div class="card-premium p-8 shadow-2xl">
+                <h2 class="text-2xl font-black text-center mb-8 text-slate-800">حركة مالية جديدة</h2>
+                <div class="space-y-5">
+                    <select id="transTarget" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-100 font-bold outline-none"></select>
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="number" id="transAmount" placeholder="المبلغ" class="p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 text-center font-black text-blue-600">
-                        <select id="transCurrency" class="p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 font-bold outline-none"></select>
+                        <input type="number" id="transAmount" placeholder="المبلغ" class="p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-100 text-center font-black text-2xl text-blue-600 outline-none">
+                        <select id="transCurrency" class="p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-100 font-bold outline-none"></select>
                     </div>
-                    <select id="transType" class="w-full p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 font-bold outline-none">
-                        <option value="deposit">إيداع (+ له)</option>
-                        <option value="withdraw">سحب (- عليه)</option>
-                    </select>
-                    <textarea id="transNote" placeholder="ملاحظات..." class="w-full p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 outline-none"></textarea>
-                    <button onclick="processTransaction()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-blue-600 transition-all">تأكيد العملية</button>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="setTransType('deposit')" id="typeDep" class="p-4 rounded-2xl bg-emerald-50 text-emerald-600 font-black border-2 border-emerald-500">إيداع (+ له)</button>
+                        <button onclick="setTransType('withdraw')" id="typeWith" class="p-4 rounded-2xl bg-slate-50 text-slate-400 font-black border-2 border-transparent">سحب (- عليه)</button>
+                    </div>
+                    <textarea id="transNote" placeholder="بيان العملية (اختياري)..." class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-100 outline-none font-medium h-24"></textarea>
+                    <button onclick="processTransaction()" class="w-full bg-slate-900 text-white font-black py-5 rounded-[2rem] shadow-2xl hover:bg-blue-600 transition-all">توثيق العملية</button>
                 </div>
             </div>
         </div>
@@ -97,44 +116,48 @@
         <div id="reports" class="tab-content space-y-6">
             <div class="card-premium p-8 no-print">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-black">كشف الحساب</h2>
-                    <button onclick="printReport()" class="bg-slate-800 text-white px-6 py-2 rounded-xl font-bold"><i class="fas fa-print ml-2"></i>طباعة</button>
+                    <h2 class="text-xl font-black">كشف حساب تفصيلي</h2>
+                    <div class="flex gap-2">
+                        <button onclick="settleAccount()" class="bg-red-50 text-red-600 px-6 py-2 rounded-xl font-bold border border-red-100 hover:bg-red-600 hover:text-white transition-all">تصفية الحساب</button>
+                        <button onclick="window.print()" class="bg-slate-900 text-white px-6 py-2 rounded-xl font-bold"><i class="fas fa-print ml-2"></i>طباعة</button>
+                    </div>
                 </div>
-                <select id="reportTarget" onchange="updateAccountReport()" class="w-full p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 font-bold outline-none mb-6"></select>
+                <select id="reportTarget" onchange="updateAccountReport()" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-100 font-bold outline-none mb-6"></select>
             </div>
-            <div id="printArea" class="space-y-3">
-                <div class="print-only hidden text-center mb-6">
-                    <h1 class="text-2xl font-bold">كشف حساب مالي - الاستراتيجي الماسي</h1>
-                    <p id="printInfo" class="text-lg mt-2 font-bold"></p>
-                    <hr class="my-4 border-black">
+            
+            <div id="printArea">
+                <div class="print-only hidden text-center mb-10">
+                    <h1 class="text-3xl font-black text-blue-600">الاستراتيجي الماسي للمحاسبة</h1>
+                    <p id="printInfo" class="text-lg mt-2 font-bold text-slate-600"></p>
+                    <div class="border-b-2 border-slate-900 mt-6"></div>
                 </div>
-                <div id="detailedReport"></div>
+                <div id="detailedReport" class="space-y-3"></div>
             </div>
         </div>
 
         <div id="settings" class="tab-content space-y-6 max-w-4xl mx-auto no-print">
             <div class="card-premium p-8">
-                <h2 class="text-lg font-black mb-6 border-b pb-2">بيانات الحساب الشخصي</h2>
+                <h2 class="text-lg font-black mb-6 border-b pb-2">بيانات الملف الشخصي</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" id="setUserName" placeholder="الاسم الكامل" class="p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 font-bold outline-none">
-                    <input type="email" id="setUserEmail" placeholder="البريد الإلكتروني" class="p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 font-bold outline-none">
+                    <input type="text" id="setUserName" class="p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 font-bold outline-none">
+                    <input type="email" id="setUserEmail" class="p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 font-bold outline-none">
                     <input type="text" id="setUserPhone" placeholder="رقم الجوال" class="p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 font-bold outline-none">
-                    <input type="password" id="setUserPass" placeholder="كلمة مرور جديدة" class="p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 font-bold outline-none">
+                    <input type="password" id="setUserPass" placeholder="تغيير كلمة المرور" class="p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 font-bold outline-none">
                 </div>
-                <button onclick="updateUserProfile()" class="mt-6 bg-blue-600 text-white px-8 py-3 rounded-xl font-bold">حفظ البيانات الجديدة</button>
+                <button onclick="updateUserProfile()" class="mt-6 bg-blue-600 text-white px-10 py-3 rounded-xl font-bold shadow-lg shadow-blue-100">حفظ التغييرات</button>
             </div>
 
             <div class="card-premium p-8">
-                <h2 class="text-lg font-black mb-6 border-b pb-2">إدارة العملات والنسخ</h2>
+                <h2 class="text-lg font-black mb-6 border-b pb-2">إدارة النظام والعملات</h2>
                 <div class="flex gap-2 mb-6">
-                    <input type="text" id="newCurName" placeholder="اسم العملة" class="flex-1 p-3 bg-slate-50 rounded-xl ring-1 ring-slate-100 outline-none">
-                    <button onclick="addCurrency()" class="bg-green-600 text-white px-6 rounded-xl font-bold">إضافة عملة</button>
+                    <input type="text" id="newCurName" placeholder="إضافة عملة جديدة" class="flex-1 p-4 bg-slate-50 rounded-xl ring-1 ring-slate-100 outline-none font-bold">
+                    <button onclick="addCurrency()" class="bg-emerald-600 text-white px-8 rounded-xl font-bold">إضافة</button>
                 </div>
-                <div id="curListTags" class="flex flex-wrap gap-2 mb-8"></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="exportData()" class="p-4 bg-slate-100 rounded-xl font-bold text-slate-600"><i class="fas fa-download ml-2"></i>تصدير نسخة احتياطية</button>
-                    <label class="p-4 bg-slate-100 rounded-xl font-bold text-slate-600 text-center cursor-pointer">
-                        <i class="fas fa-upload ml-2"></i>استيراد نسخة <input type="file" onchange="importData(event)" class="hidden">
+                <div id="curTags" class="flex flex-wrap gap-2 mb-8"></div>
+                <div class="grid grid-cols-2 gap-4 border-t pt-8">
+                    <button onclick="exportData()" class="p-4 bg-blue-50 text-blue-600 rounded-2xl font-bold border border-blue-100 hover:bg-blue-600 hover:text-white transition-all">تصدير بياناتي</button>
+                    <label class="p-4 bg-slate-50 text-slate-600 rounded-2xl font-bold border border-slate-200 text-center cursor-pointer hover:bg-slate-600 hover:text-white transition-all">
+                        استعادة نسخة <input type="file" onchange="importData(event)" class="hidden">
                     </label>
                 </div>
             </div>
@@ -142,61 +165,70 @@
     </main>
 
     <div id="custModal" class="modal no-print">
-        <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-8 shadow-2xl relative">
-            <h3 id="modalTitle" class="text-2xl font-black mb-6">إضافة عميل</h3>
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl relative">
+            <h3 id="modalTitle" class="text-2xl font-black mb-8">إضافة عميل جديد</h3>
             <div class="space-y-4">
                 <input type="hidden" id="editCustId">
-                <input type="text" id="custName" placeholder="اسم العميل" class="w-full p-4 bg-slate-50 rounded-xl ring-1 ring-slate-200 font-bold">
-                <input type="text" id="custPhone" placeholder="رقم الجوال" class="w-full p-4 bg-slate-50 rounded-xl ring-1 ring-slate-200 font-bold">
-                <div id="initBalanceRow" class="flex gap-3">
-                    <input type="number" id="custInitAmount" placeholder="المبلغ" class="w-2/3 p-4 bg-slate-50 rounded-xl ring-1 ring-slate-200 font-black">
-                    <select id="custInitType" class="w-1/3 p-4 bg-slate-50 rounded-xl ring-1 ring-slate-200 font-bold outline-none">
+                <input type="text" id="custName" placeholder="اسم العميل الرباعي" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 font-bold outline-none focus:ring-2 focus:ring-blue-600">
+                <input type="text" id="custPhone" placeholder="رقم الجوال" class="w-full p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 font-bold outline-none focus:ring-2 focus:ring-blue-600">
+                <div id="initRow" class="flex gap-3">
+                    <input type="number" id="custInitAmount" placeholder="الرصيد الافتتاحي" class="w-2/3 p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 font-black text-center">
+                    <select id="custInitType" class="w-1/3 p-4 bg-slate-50 rounded-2xl ring-1 ring-slate-200 font-bold">
                         <option value="credit">له</option>
                         <option value="debt">عليه</option>
                     </select>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="saveCustomer()" class="flex-1 bg-blue-600 text-white font-black py-4 rounded-xl">حفظ</button>
-                    <button onclick="closeModal('custModal')" class="bg-slate-100 px-6 rounded-xl font-bold">إلغاء</button>
+                <div class="flex gap-2 pt-4">
+                    <button onclick="saveCustomer()" class="flex-1 bg-blue-600 text-white font-black py-4 rounded-2xl text-lg shadow-xl shadow-blue-100">حفظ البيانات</button>
+                    <button onclick="closeModal('custModal')" class="px-8 bg-slate-100 text-slate-500 font-bold rounded-2xl">إلغاء</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-lg bg-white p-3 rounded-[2.5rem] shadow-2xl flex justify-around z-50 no-print border">
-        <button onclick="switchTab('customers')" id="nav-customers" class="nav-btn flex flex-col items-center text-slate-300 nav-active"><i class="fas fa-users"></i><span class="text-[9px] mt-1 font-black uppercase">العملاء</span></button>
-        <button onclick="switchTab('transactions')" id="nav-transactions" class="nav-btn flex flex-col items-center text-slate-300"><i class="fas fa-exchange-alt"></i><span class="text-[9px] mt-1 font-black uppercase">عمليات</span></button>
-        <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn flex flex-col items-center text-slate-300"><i class="fas fa-file-contract"></i><span class="text-[9px] mt-1 font-black uppercase">التقارير</span></button>
-        <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center text-slate-300"><i class="fas fa-cog"></i><span class="text-[9px] mt-1 font-black uppercase">إعدادات</span></button>
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-lg bg-white/90 backdrop-blur-xl border border-white p-3 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex justify-around z-50 no-print">
+        <button onclick="switchTab('customers')" id="nav-customers" class="nav-btn flex flex-col items-center text-slate-300 nav-active"><i class="fas fa-users text-lg"></i><span class="text-[9px] font-black mt-1">العملاء</span></button>
+        <button onclick="switchTab('transactions')" id="nav-transactions" class="nav-btn flex flex-col items-center text-slate-300"><i class="fas fa-exchange-alt text-lg"></i><span class="text-[9px] font-black mt-1">عملية</span></button>
+        <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn flex flex-col items-center text-slate-300"><i class="fas fa-file-invoice-dollar text-lg"></i><span class="text-[9px] font-black mt-1">التقارير</span></button>
+        <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center text-slate-300"><i class="fas fa-fingerprint text-lg"></i><span class="text-[9px] font-black mt-1">الإعدادات</span></button>
     </nav>
 </div>
 
 <script>
-    let users = JSON.parse(localStorage.getItem('sys_users_v39')) || [];
-    let currentUser = JSON.parse(sessionStorage.getItem('active_user_v39')) || null;
-    let customers = [], transactions = [], currencies = [];
+    let users = JSON.parse(localStorage.getItem('sys_users_v40')) || [];
+    let currentUser = JSON.parse(sessionStorage.getItem('active_user_v40')) || null;
+    let customers = [], transactions = [], currencies = [], currentType = 'deposit';
 
     window.onload = () => { if(currentUser) showApp(); };
 
-    function toggleAuth(showLogin) {
-        document.getElementById('loginBox').classList.toggle('hidden', !showLogin);
-        document.getElementById('signUpBox').classList.toggle('hidden', showLogin);
+    function showToast(msg, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-triangle'}"></i> <span>${msg}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
+    }
+
+    function toggleAuth(isLogin) {
+        document.getElementById('loginBox').classList.toggle('hidden', !isLogin);
+        document.getElementById('signUpBox').classList.toggle('hidden', isLogin);
     }
 
     function handleSignUp() {
-        const name = document.getElementById('regName').value, email = document.getElementById('regEmail').value, pass = document.getElementById('regPass').value;
-        if(name && email && pass) {
-            if(users.find(u=>u.email===email)) return alert('مسجل مسبقاً');
-            users.push({ name, email, pass, phone: "", currencies: ['ريال سعودي', 'دولار'], data: { customers: [], transactions: [] } });
-            saveUsers(); alert('تم! سجل دخولك'); toggleAuth(true);
+        const n = document.getElementById('regName').value, e = document.getElementById('regEmail').value, p = document.getElementById('regPass').value;
+        if(n && e && p) {
+            if(users.find(u=>u.email===e)) return showToast('البريد مسجل مسبقاً', 'danger');
+            users.push({ name: n, email: e, pass: p, phone: "", currencies: ['ريال سعودي', 'دولار'], data: { customers: [], transactions: [] } });
+            saveUsers(); showToast('تم إنشاء الحساب بنجاح'); toggleAuth(true);
         }
     }
 
     function handleLogin() {
-        const email = document.getElementById('loginEmail').value, pass = document.getElementById('loginPass').value;
-        const user = users.find(u => u.email === email && u.pass === pass);
-        if(user) { currentUser = user; sessionStorage.setItem('active_user_v39', JSON.stringify(user)); showApp(); } 
-        else alert('خطأ!');
+        const e = document.getElementById('loginEmail').value, p = document.getElementById('loginPass').value;
+        const user = users.find(u => u.email === e && u.pass === p);
+        if(user) { currentUser = user; sessionStorage.setItem('active_user_v40', JSON.stringify(user)); showApp(); showToast(`مرحباً بك، ${user.name}`); } 
+        else showToast('خطأ في البريد أو كلمة المرور', 'danger');
     }
 
     function showApp() {
@@ -208,11 +240,126 @@
         renderCustomers(); renderCurOptions(); fillSettings();
     }
 
+    function renderCustomers() {
+        const query = document.getElementById('searchCust').value.toLowerCase();
+        const body = document.getElementById('customerTableBody');
+        const tSel = document.getElementById('transTarget'), rSel = document.getElementById('reportTarget');
+        body.innerHTML = ''; tSel.innerHTML = ''; rSel.innerHTML = '<option value="">اختر عميل من القائمة</option>';
+
+        const filtered = customers.filter(c => c.name.toLowerCase().includes(query));
+        filtered.forEach((c, index) => {
+            const balHTML = currencies.map(cur => {
+                const b = getBal(c.id, cur);
+                return b !== 0 ? `<div class="text-[11px] font-black ${b>0?'text-emerald-600':'text-red-500'}">${Math.abs(b).toLocaleString()} ${cur}</div>` : '';
+            }).join('');
+
+            body.innerHTML += `
+                <tr class="hover:bg-slate-50 transition-all">
+                    <td class="px-6 py-4 font-black text-slate-300 text-xs">${index + 1}</td>
+                    <td class="px-6 py-4 font-black text-slate-800">${c.name}</td>
+                    <td class="px-6 py-4">${balHTML || '<span class="text-slate-300 italic text-[10px]">خالي</span>'}</td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex justify-center gap-3">
+                            <button onclick="openModal('custModal', ${c.id})" class="text-blue-500 hover:scale-110 transition-transform"><i class="fas fa-edit"></i></button>
+                            <button onclick="delCust(${c.id})" class="text-red-300 hover:text-red-600"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            tSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            rSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
+    }
+
+    function setTransType(type) {
+        currentType = type;
+        const d = document.getElementById('typeDep'), w = document.getElementById('typeWith');
+        if(type === 'deposit') {
+            d.className = 'p-4 rounded-2xl bg-emerald-50 text-emerald-600 font-black border-2 border-emerald-500';
+            w.className = 'p-4 rounded-2xl bg-slate-50 text-slate-400 font-black border-2 border-transparent';
+        } else {
+            w.className = 'p-4 rounded-2xl bg-red-50 text-red-600 font-black border-2 border-red-500';
+            d.className = 'p-4 rounded-2xl bg-slate-50 text-slate-400 font-black border-2 border-transparent';
+        }
+    }
+
+    function processTransaction() {
+        const id = parseInt(document.getElementById('transTarget').value), amt = parseFloat(document.getElementById('transAmount').value), cur = document.getElementById('transCurrency').value, note = document.getElementById('transNote').value;
+        if(!id || !amt) return showToast('يرجى اختيار العميل والمبلغ', 'danger');
+        
+        transactions.push({ id: Date.now(), custId: id, amount: currentType==='deposit'?amt:-amt, cur, note: note || (currentType==='deposit'?'إيداع نقدي':'سحب نقدي'), date: new Date().toLocaleDateString('ar-SA') });
+        save(); renderCustomers(); 
+        showToast(currentType==='deposit' ? `تم إيداع ${amt} ${cur} بنجاح` : `تم سحب ${amt} ${cur} بنجاح`, currentType==='deposit' ? 'success' : 'danger');
+        document.getElementById('transAmount').value = '';
+    }
+
+    function updateAccountReport() {
+        const cid = parseInt(document.getElementById('reportTarget').value);
+        const container = document.getElementById('detailedReport');
+        if(!cid) return container.innerHTML = '';
+        const c = customers.find(x => x.id === cid);
+        document.getElementById('printInfo').innerText = `تقرير حساب: ${c.name} | التاريخ: ${new Date().toLocaleDateString('ar-SA')}`;
+        
+        const filtered = transactions.filter(t => t.custId === cid).reverse();
+        container.innerHTML = filtered.map(t => `
+            <div class="bg-white p-5 rounded-2xl border flex justify-between items-center shadow-sm">
+                <div><p class="font-black text-slate-700">${t.note}</p><p class="text-[10px] font-bold text-slate-400 uppercase">${t.date}</p></div>
+                <div class="text-left"><p class="font-black text-lg ${t.amount>0?'text-emerald-600':'text-red-600'}">${Math.abs(t.amount).toLocaleString()}</p><p class="text-[9px] font-black text-slate-300 uppercase">${t.cur}</p></div>
+            </div>`).join('') || '<div class="text-center py-10 font-bold text-slate-300">لا توجد عمليات مسجلة لهذا العميل</div>';
+    }
+
+    function settleAccount() {
+        const cid = parseInt(document.getElementById('reportTarget').value);
+        if(!cid) return showToast('اختر عميل أولاً', 'danger');
+        if(confirm('هل تود تصفير كافة الحسابات لهذا العميل؟')) {
+            currencies.forEach(cur => {
+                const b = getBal(cid, cur);
+                if(b !== 0) transactions.push({ id: Date.now()+Math.random(), custId: cid, amount: -b, cur, note: 'تصفية حساب محاسبية', date: new Date().toLocaleDateString('ar-SA') });
+            });
+            save(); updateAccountReport(); renderCustomers(); showToast('تمت تصفية الحساب بنجاح');
+        }
+    }
+
+    function openModal(id, custId = null) {
+        document.getElementById(id).classList.add('active');
+        if(custId) {
+            const c = customers.find(x => x.id === custId);
+            document.getElementById('modalTitle').innerText = 'تعديل البيانات';
+            document.getElementById('editCustId').value = c.id;
+            document.getElementById('custName').value = c.name;
+            document.getElementById('custPhone').value = c.phone;
+            document.getElementById('initRow').style.display = 'none';
+        } else {
+            document.getElementById('modalTitle').innerText = 'إضافة عميل جديد';
+            document.getElementById('editCustId').value = '';
+            document.getElementById('custName').value = '';
+            document.getElementById('custPhone').value = '';
+            document.getElementById('initRow').style.display = 'flex';
+        }
+    }
+
+    function saveCustomer() {
+        const id = document.getElementById('editCustId').value, name = document.getElementById('custName').value, phone = document.getElementById('custPhone').value;
+        if(!name) return;
+        if(id) {
+            const idx = customers.findIndex(x => x.id == id);
+            customers[idx].name = name; customers[idx].phone = phone;
+            showToast('تم تحديث بيانات العميل');
+        } else {
+            const newId = Date.now();
+            customers.push({ id: newId, name, phone });
+            const amt = parseFloat(document.getElementById('custInitAmount').value) || 0;
+            const type = document.getElementById('custInitType').value;
+            if(amt !== 0) transactions.push({ id: Date.now()+1, custId: newId, amount: type==='credit'?amt:-amt, cur: currencies[0], note:'رصيد افتتاحي', date: new Date().toLocaleDateString('ar-SA') });
+            showToast('تمت إضافة العميل بنجاح');
+        }
+        save(); renderCustomers(); closeModal('custModal');
+    }
+
     function fillSettings() {
         document.getElementById('setUserName').value = currentUser.name;
         document.getElementById('setUserEmail').value = currentUser.email;
-        document.getElementById('setUserPhone').value = currentUser.phone || "";
-        document.getElementById('curListTags').innerHTML = currencies.map(c => `<span class="bg-slate-100 px-3 py-1 rounded-full text-xs font-bold">${c}</span>`).join('');
+        document.getElementById('setUserPhone').value = currentUser.phone || '';
+        document.getElementById('curTags').innerHTML = currencies.map(c => `<span class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-black border border-blue-100">${c}</span>`).join('');
     }
 
     function updateUserProfile() {
@@ -221,142 +368,24 @@
         currentUser.phone = document.getElementById('setUserPhone').value;
         const p = document.getElementById('setUserPass').value;
         if(p) currentUser.pass = p;
-        save(); alert('تم التحديث!');
+        save(); showToast('تم تحديث ملفك الشخصي');
     }
 
     function addCurrency() {
         const c = document.getElementById('newCurName').value;
-        if(c && !currencies.includes(c)) { currencies.push(c); currentUser.currencies = currencies; save(); renderCurOptions(); fillSettings(); }
-    }
-
-    function openModal(id, custId = null) {
-        document.getElementById(id).classList.add('active');
-        if(custId) {
-            const c = customers.find(x => x.id === custId);
-            document.getElementById('modalTitle').innerText = 'تعديل بيانات العميل';
-            document.getElementById('editCustId').value = c.id;
-            document.getElementById('custName').value = c.name;
-            document.getElementById('custPhone').value = c.phone;
-            document.getElementById('initBalanceRow').style.display = 'none';
-        } else {
-            document.getElementById('modalTitle').innerText = 'إضافة عميل جديد';
-            document.getElementById('editCustId').value = '';
-            document.getElementById('custName').value = '';
-            document.getElementById('custPhone').value = '';
-            document.getElementById('initBalanceRow').style.display = 'flex';
-        }
-    }
-
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-    function saveCustomer() {
-        const id = document.getElementById('editCustId').value;
-        const name = document.getElementById('custName').value;
-        const phone = document.getElementById('custPhone').value;
-        if(!name) return;
-
-        if(id) {
-            const idx = customers.findIndex(x => x.id == id);
-            customers[idx].name = name; customers[idx].phone = phone;
-        } else {
-            const newId = Date.now();
-            customers.push({ id: newId, name, phone });
-            const amt = parseFloat(document.getElementById('custInitAmount').value) || 0;
-            const type = document.getElementById('custInitType').value;
-            if(amt !== 0) transactions.push({ id: Date.now()+1, custId: newId, amount: type==='credit'?amt:-amt, cur: currencies[0], note:'رصيد افتتاحي', date: new Date().toLocaleDateString('ar-SA') });
-        }
-        save(); renderCustomers(); closeModal('custModal');
-    }
-
-    function renderCustomers() {
-        const list = document.getElementById('customerList');
-        const tSel = document.getElementById('transTarget');
-        const rSel = document.getElementById('reportTarget');
-        list.innerHTML = ''; tSel.innerHTML = ''; rSel.innerHTML = '<option value="">اختر عميل للكشف</option>';
-
-        customers.forEach(c => {
-            const bal = currencies.reduce((sum, cur) => sum + getBal(c.id, cur), 0);
-            list.innerHTML += `
-                <div class="card-premium p-6 ${bal > 0 ? 'status-credit' : (bal < 0 ? 'status-debt' : '')}">
-                    <div class="flex justify-between items-start mb-4">
-                        <div><h3 class="font-black">${c.name}</h3><p class="text-[10px] text-slate-400 font-bold">${c.phone || 'بدون هاتف'}</p></div>
-                        <div class="flex gap-2">
-                            <button onclick="openModal('custModal', ${c.id})" class="text-blue-400"><i class="fas fa-edit"></i></button>
-                            <button onclick="delCust(${c.id})" class="text-red-300"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                    <div class="border-t pt-3 space-y-1">
-                        ${currencies.map(cur => {
-                            const b = getBal(c.id, cur);
-                            return b !== 0 ? `<div class="flex justify-between text-xs font-bold ${b>0?'text-green-600':'text-red-600'}"><span>${cur}</span><span>${Math.abs(b).toLocaleString()}</span></div>` : '';
-                        }).join('') || '<p class="text-[10px] text-slate-300 italic text-center">لا يوجد رصيد</p>'}
-                    </div>
-                </div>`;
-            tSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-            rSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-        });
-    }
-
-    function processTransaction() {
-        const id = parseInt(document.getElementById('transTarget').value), amt = parseFloat(document.getElementById('transAmount').value), type = document.getElementById('transType').value, cur = document.getElementById('transCurrency').value, note = document.getElementById('transNote').value;
-        if(id && amt) {
-            transactions.push({ id: Date.now(), custId: id, amount: type==='deposit'?amt:-amt, cur, note: note || 'عملية مالية', date: new Date().toLocaleDateString('ar-SA') });
-            save(); alert('تم! الرصيد المحدث يظهر الآن'); renderCustomers();
-        }
-    }
-
-    function updateAccountReport() {
-        const cid = parseInt(document.getElementById('reportTarget').value);
-        const container = document.getElementById('detailedReport');
-        if(!cid) return container.innerHTML = '';
-        const c = customers.find(x => x.id === cid);
-        document.getElementById('printInfo').innerText = `العميل: ${c.name} | رقم الهاتف: ${c.phone || 'غير مسجل'}`;
-        const filtered = transactions.filter(t => t.custId === cid).reverse();
-        container.innerHTML = filtered.map(t => `
-            <div class="bg-white p-4 rounded-xl border flex justify-between items-center mb-2">
-                <div><p class="font-bold text-slate-700">${t.note}</p><p class="text-[10px] font-black uppercase text-slate-400">${t.date}</p></div>
-                <div class="text-left"><p class="font-black ${t.amount>0?'text-green-600':'text-red-600'}">${Math.abs(t.amount).toLocaleString()}</p><p class="text-[9px] text-slate-300 font-bold uppercase">${t.cur}</p></div>
-            </div>`).join('');
-    }
-
-    function printReport() {
-        if(!document.getElementById('reportTarget').value) return alert('اختر عميلاً أولاً');
-        window.print();
-    }
-
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-blue-600'));
-        document.getElementById('nav-'+tabId).classList.add('nav-active');
+        if(c && !currencies.includes(c)) { currencies.push(c); currentUser.currencies = currencies; save(); renderCurOptions(); fillSettings(); showToast(`تمت إضافة عملة ${c}`); }
     }
 
     function getBal(cid, cur) { return transactions.filter(t => t.custId === cid && t.cur === cur).reduce((s, t) => s + t.amount, 0); }
-    function saveUsers() { localStorage.setItem('sys_users_v39', JSON.stringify(users)); }
-    function save() { 
-        currentUser.data = { customers, transactions };
-        currentUser.currencies = currencies;
-        const idx = users.findIndex(u => u.email === currentUser.email);
-        users[idx] = currentUser; saveUsers();
-        sessionStorage.setItem('active_user_v39', JSON.stringify(currentUser));
-    }
+    function saveUsers() { localStorage.setItem('sys_users_v40', JSON.stringify(users)); }
+    function save() { currentUser.data = { customers, transactions }; currentUser.currencies = currencies; const idx = users.findIndex(u => u.email === currentUser.email); users[idx] = currentUser; saveUsers(); sessionStorage.setItem('active_user_v40', JSON.stringify(currentUser)); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     function renderCurOptions() { document.getElementById('transCurrency').innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join(''); }
+    function switchTab(tabId) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.getElementById(tabId).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-blue-600')); document.getElementById('nav-'+tabId).classList.add('nav-active'); }
     function logout() { sessionStorage.clear(); location.reload(); }
-    function delCust(id) { if(confirm('حذف؟')) { customers = customers.filter(c => c.id !== id); transactions = transactions.filter(t => t.custId !== id); save(); renderCustomers(); } }
-    
-    function exportData() {
-        const data = JSON.stringify(currentUser);
-        const blob = new Blob([data], {type: 'application/json'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Diamond_Backup_${currentUser.name}.json`; a.click();
-    }
-    function importData(e) {
-        const r = new FileReader();
-        r.onload = (f) => {
-            const d = JSON.parse(f.target.result);
-            currentUser = d; save(); location.reload();
-        };
-        r.readAsText(e.target.files[0]);
-    }
+    function delCust(id) { if(confirm('هل أنت متأكد من الحذف؟')) { customers = customers.filter(c => c.id !== id); transactions = transactions.filter(t => t.custId !== id); save(); renderCustomers(); showToast('تم حذف العميل بنجاح', 'danger'); } }
+    function exportData() { const data = JSON.stringify(currentUser); const blob = new Blob([data], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Diamond_Backup_${currentUser.name}.json`; a.click(); }
+    function importData(e) { const r = new FileReader(); r.onload = (f) => { currentUser = JSON.parse(f.target.result); save(); location.reload(); }; r.readAsText(e.target.files[0]); }
 </script>
 </body>
 </html>
