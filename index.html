@@ -173,124 +173,71 @@
     </div>
 </div>
 
-<script>
-    // تهيئة البيانات
-    let users = JSON.parse(localStorage.getItem('elite_users_v43')) || [];
-    let currentUser = JSON.parse(sessionStorage.getItem('active_elite_user')) || null;
-    let customers = [], transactions = [], currencies = ['ريال سعودي'], currentType = 'deposit';
+    // نظام إنشاء الحساب المطور
+    function handleSignUp() {
+        const n = document.getElementById('regName').value.trim();
+        const e = document.getElementById('regEmail').value.toLowerCase().trim();
+        const p = document.getElementById('regPass').value.trim();
 
-    window.onload = () => { if(currentUser) { reloadUserData(); showApp(); } };
-
-    function reloadUserData() {
-        customers = currentUser.data.customers || [];
-        transactions = currentUser.data.transactions || [];
-    }
-
-    function showApp() {
-        document.getElementById('authScreen').classList.add('hidden');
-        document.getElementById('mainApp').classList.remove('hidden');
-        renderCustomers();
-        renderCurOptions();
-    }
-
-    function renderCustomers() {
-        const q = document.getElementById('searchCust').value.toLowerCase();
-        const body = document.getElementById('customerTableBody');
-        const tSel = document.getElementById('transTarget');
-        
-        body.innerHTML = ''; 
-        tSel.innerHTML = '';
-
-        customers.filter(c => c.name.toLowerCase().includes(q)).forEach(c => {
-            const b = getBal(c.id);
-            body.innerHTML += `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-4 py-4 text-center"><input type="checkbox" class="cust-check w-4 h-4" value="${c.id}" onclick="updateDeleteBtn()"></td>
-                    <td class="px-4 py-4 font-black text-slate-700">${c.name}</td>
-                    <td class="px-4 py-4 ${b>=0?'text-emerald-600':'text-red-500'}">${Math.abs(b).toLocaleString()}</td>
-                    <td class="px-4 py-4 text-center">
-                        <button onclick="openModal('custModal', ${c.id})" class="text-blue-500 mx-2"><i class="fas fa-edit"></i></button>
-                        <button onclick="delCust(${c.id})" class="text-red-300 mx-2"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>`;
-            tSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-        });
-    }
-
-    function getBal(cid) {
-        return transactions.filter(t => t.custId === cid).reduce((s, t) => s + t.amount, 0);
-    }
-
-    // دوال المساعدة
-    function switchTab(t) {
-        document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
-        document.getElementById(t).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('nav-active'));
-        document.getElementById('nav-'+t).classList.add('nav-active');
-    }
-
-    function openModal(id, cid=null) {
-        document.getElementById(id).classList.add('active');
-        if(cid) {
-            const c = customers.find(x=>x.id===cid);
-            document.getElementById('editCustId').value = c.id;
-            document.getElementById('custName').value = c.name;
-            document.getElementById('custPhone').value = c.phone || '';
-        } else {
-            document.getElementById('editCustId').value = '';
-            document.getElementById('custName').value = '';
-            document.getElementById('custPhone').value = '';
+        // 1. التحقق من إدخال كافة البيانات
+        if(!n || !e || !p) {
+            showToast('يجب تعبئة كافة الحقول (الاسم، البريد، الرمز)', 'danger');
+            return;
         }
-    }
 
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-    function saveCustomer() {
-        const id=document.getElementById('editCustId').value, n=document.getElementById('custName').value, p=document.getElementById('custPhone').value;
-        if(!n) return;
-        if(id) {
-            const idx=customers.findIndex(x=>x.id==id);
-            customers[idx].name=n; customers[idx].phone=p;
-        } else {
-            customers.push({id:Date.now(), name:n, phone:p});
+        // 2. التحقق من عدم تكرار البريد
+        const userExists = users.find(u => u.email === e);
+        if(userExists) {
+            showToast('هذا البريد مسجل مسبقاً! جرب تسجيل الدخول', 'danger');
+            return;
         }
-        save(); renderCustomers(); closeModal('custModal');
-    }
 
-    function save() {
-        currentUser.data = { customers, transactions };
-        const idx = users.findIndex(u => u.email === currentUser.email);
-        if(idx !== -1) users[idx] = currentUser;
+        // 3. إنشاء الكيان الاستراتيجي الجديد
+        const newUser = { 
+            name: n, 
+            email: e, 
+            pass: p, 
+            phone: "", 
+            currencies: ['ريال سعودي', 'دولار'], 
+            data: { 
+                customers: [], 
+                transactions: [] 
+            } 
+        };
+
+        // 4. الحفظ في قاعدة البيانات المحلية
+        users.push(newUser);
         localStorage.setItem('elite_users_v43', JSON.stringify(users));
-        sessionStorage.setItem('active_elite_user', JSON.stringify(currentUser));
+
+        showToast('تم إنشاء حسابك بنجاح! جاري الدخول...', 'success');
+
+        // 5. تسجيل دخول تلقائي فوراً
+        setTimeout(() => {
+            currentUser = newUser;
+            sessionStorage.setItem('active_elite_user', JSON.stringify(newUser));
+            reloadUserData();
+            showApp();
+        }, 1500);
     }
 
+    // تصحيح دالة الدخول لضمان التوافق
     function handleLogin() {
-        const e = document.getElementById('loginEmail').value.toLowerCase(), p = document.getElementById('loginPass').value;
+        const e = document.getElementById('loginEmail').value.toLowerCase().trim();
+        const p = document.getElementById('loginPass').value.trim();
+        
         const user = users.find(u => u.email === e && u.pass === p);
-        if(user) { currentUser = user; sessionStorage.setItem('active_elite_user', JSON.stringify(user)); reloadUserData(); showApp(); }
+        
+        if(user) { 
+            currentUser = user; 
+            sessionStorage.setItem('active_elite_user', JSON.stringify(user)); 
+            reloadUserData(); 
+            showApp(); 
+            showToast(`مرحباً بك يا ${currentUser.name}`); 
+        } else {
+            showToast('عذراً، البريد أو كلمة المرور غير صحيحة', 'danger');
+        }
     }
 
-    function logout() { sessionStorage.clear(); location.reload(); }
-    
-    function renderCurOptions() {
-        document.getElementById('transCurrency').innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-
-    function setTransType(t) {
-        currentType = t;
-        document.getElementById('typeDep').className = t==='deposit'?'p-4 rounded-xl bg-emerald-50 text-emerald-600 font-black border-2 border-emerald-500':'p-4 bg-slate-50 rounded-xl';
-        document.getElementById('typeWith').className = t==='withdraw'?'p-4 rounded-xl bg-red-50 text-red-600 font-black border-2 border-red-500':'p-4 bg-slate-50 rounded-xl';
-    }
-
-    function processTransaction() {
-        const id = parseInt(document.getElementById('transTarget').value), amt = parseFloat(document.getElementById('transAmount').value), note = document.getElementById('transNote').value;
-        if(!id || !amt) return;
-        transactions.push({ id: Date.now(), custId: id, amount: currentType==='deposit'?amt:-amt, note: note || 'عملية نقدية' });
-        save(); renderCustomers();
-        document.getElementById('transAmount').value = '';
-    }
-</script>
 </body>
 </html>
             </div>
