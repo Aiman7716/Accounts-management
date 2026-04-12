@@ -6,7 +6,6 @@
     <title>الاستراتيجي الماسي V43.1 - النسخة الاحترافية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <style>
@@ -93,6 +92,340 @@
                 <div class="flex gap-2">
                     <button onclick="openModal('custModal')" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-100">+ إضافة عميل</button>
                     <button id="multiDeleteBtn" onclick="deleteSelected()" class="hidden bg-red-500 text-white px-6 rounded-2xl font-black shadow-lg"><i class="fas fa-trash"></i> حذف المحدد</button>
+                </div>
+            </div>
+            <div class="card-premium overflow-hidden no-print">
+                <table class="w-full text-right border-collapse">
+                    <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase">
+                        <tr>
+                            <th class="px-4 py-3"><input type="checkbox" id="selectAll" onclick="toggleSelectAll()"></th>
+                            <th class="px-4 py-3">العميل</th>
+                            <th class="px-4 py-3">الرصيد الرئيسي</th>
+                            <th class="px-4 py-3 text-center">أدوات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerTableBody" class="divide-y divide-slate-100 font-bold"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="transactions" class="tab-content max-w-xl mx-auto no-print">
+            <div class="card-premium p-8 space-y-5">
+                <h2 class="text-xl font-black text-center mb-4">قيد عملية جديدة</h2>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-400 mr-2 uppercase">اختر العميل</label>
+                    <select id="transTarget" class="w-full p-4 bg-slate-50 rounded-xl border font-bold outline-none focus:border-blue-500"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="transAmount" placeholder="0.00" class="w-full p-4 bg-slate-50 rounded-xl border text-center font-black text-2xl text-blue-600">
+                    <select id="transCurrency" class="w-full p-4 bg-slate-50 rounded-xl border font-bold"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="setTransType('deposit')" id="typeDep" class="p-4 rounded-xl bg-emerald-50 text-emerald-600 font-black border-2 border-emerald-500 transition-all">إيداع (+ له)</button>
+                    <button onclick="setTransType('withdraw')" id="typeWith" class="p-4 rounded-xl bg-slate-50 text-slate-400 font-black border-2 border-transparent transition-all">سحب (- عليه)</button>
+                </div>
+                <textarea id="transNote" placeholder="بيان العملية..." class="w-full p-4 bg-slate-50 rounded-xl h-24 font-bold border outline-none text-sm"></textarea>
+                <button onclick="processTransaction()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black shadow-xl hover:bg-blue-600 transition-all">حفظ سحابي</button>
+            </div>
+        </div>
+
+        <div id="reports" class="tab-content space-y-6">
+            <div class="card-premium p-6 space-y-4">
+                <div class="flex justify-between items-center mb-4 no-print">
+                    <h2 class="text-lg font-black">مركز التقارير والتحليل</h2>
+                    <button onclick="window.print()" class="w-12 h-12 bg-slate-900 text-white rounded-xl shadow-lg flex items-center justify-center"><i class="fas fa-print"></i></button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 no-print">
+                    <select id="reportCust" onchange="runDetailedReport()" class="p-3 bg-slate-50 rounded-xl font-bold border text-xs">
+                        <option value="all">كافة العملاء</option>
+                    </select>
+                    <select id="reportMonth" onchange="runDetailedReport()" class="p-3 bg-slate-50 rounded-xl font-bold border text-xs">
+                        <option value="all">كل الأوقات</option>
+                        <option value="month">الشهر الحالي</option>
+                        <option value="day">اليوم فقط</option>
+                    </select>
+                    <select id="reportType" onchange="runDetailedReport()" class="p-3 bg-slate-50 rounded-xl font-bold border text-xs">
+                        <option value="all">كل العمليات</option>
+                        <option value="deposit">الإيداعات فقط</option>
+                        <option value="withdraw">السحوبات فقط</option>
+                    </select>
+                </div>
+                <div id="dailySummary" class="grid grid-cols-2 gap-3 pt-4 border-t border-dashed"></div>
+                <div id="reportDisplay" class="space-y-3 pt-4"></div>
+                <div id="reportTotalFooter" class="pt-6 border-t-4 border-double border-slate-100"></div>
+            </div>
+        </div>
+
+        <div id="settings" class="tab-content space-y-6 no-print">
+            <div class="card-premium p-8">
+                <h2 class="text-lg font-black mb-6 border-b pb-3">بيانات صاحب الحساب</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1"><label class="text-[10px] font-black text-slate-400">الاسم</label><input type="text" id="setUserName" class="w-full p-4 bg-slate-50 rounded-xl font-bold border"></div>
+                    <div class="space-y-1"><label class="text-[10px] font-black text-slate-400">رقم الهاتف</label><input type="text" id="setUserPhone" class="w-full p-4 bg-slate-50 rounded-xl font-bold border"></div>
+                    <div class="space-y-1"><label class="text-[10px] font-black text-slate-400">البريد الإلكتروني</label><input type="email" id="setUserEmail" class="w-full p-4 bg-slate-50 rounded-xl font-bold border"></div>
+                    <div class="space-y-1"><label class="text-[10px] font-black text-slate-400">تغيير الرمز</label><input type="password" id="setUserPass" placeholder="******" class="w-full p-4 bg-slate-50 rounded-xl font-bold border"></div>
+                </div>
+                <button onclick="updateUserProfile()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black mt-6 shadow-lg shadow-blue-100">تحديث البيانات السحابية</button>
+            </div>
+            <div class="card-premium p-8">
+                <h2 class="text-lg font-black mb-6 border-b pb-3">البيانات والعملات</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="newCurName" placeholder="إضافة عملة..." class="flex-1 p-4 bg-slate-50 rounded-xl font-bold border">
+                    <button onclick="addCurrency()" class="bg-blue-600 text-white px-6 rounded-xl font-black">إضافة</button>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="exportData()" class="p-4 bg-slate-900 text-white rounded-xl font-black flex items-center justify-center gap-2"><i class="fas fa-file-export"></i> نسخة JSON</button>
+                    <button onclick="restoreLastBackup()" class="p-4 bg-blue-50 text-blue-600 rounded-xl border border-blue-200 font-black flex items-center justify-center gap-2"><i class="fas fa-history"></i> استعادة سريعة</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="contact" class="tab-content no-print">
+            <div class="max-w-2xl mx-auto space-y-8 pb-10">
+                <div class="card-premium relative overflow-hidden bg-slate-900 text-white p-8 shadow-2xl">
+                    <div class="relative z-10 flex flex-col items-center text-center gap-6">
+                        <div class="w-24 h-24 rounded-full border-4 border-blue-400 p-1 bg-white/10 backdrop-blur-sm">
+                            <img src="https://api.dicebear.com/8.x/initials/svg?seed=Ayman&backgroundColor=039be5" alt="م. أيمن" class="w-full h-full rounded-full object-cover">
+                        </div>
+                        <div>
+                            <span class="bg-blue-500 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase">المطور المعتمد</span>
+                            <h2 class="text-2xl font-black mt-3">م. أيمن الحميري</h2>
+                            <p class="text-blue-100 text-xs mt-2">شريكك التقني في رحلة النجاح الاستراتيجي.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                    <a href="https://wa.me/966556868717" target="_blank" class="bg-white p-6 rounded-[2rem] border-2 border-slate-100 shadow-xl flex items-center gap-6 hover:bg-emerald-50 transition-all">
+                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-xl"><i class="fab fa-whatsapp"></i></div>
+                        <div>
+                            <h3 class="text-xs font-black text-emerald-700 uppercase">واتساب / اتصال</h3>
+                            <p class="text-xl font-black text-slate-800 tracking-tighter">966556868717</p>
+                        </div>
+                    </a>
+                    <a href="mailto:kebriay2030@gmail.com" class="bg-white p-6 rounded-[2rem] border-2 border-slate-100 shadow-xl flex items-center gap-6 hover:bg-blue-50 transition-all">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <h3 class="text-xs font-black text-blue-700 uppercase">البريد الإلكتروني</h3>
+                            <p class="text-sm font-black text-slate-800">kebriay2030@gmail.com</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-lg bg-white/95 backdrop-blur-xl border p-3 rounded-[2.5rem] shadow-2xl flex justify-around z-50 no-print">
+        <button onclick="switchTab('customers')" id="nav-customers" class="nav-btn flex flex-col items-center text-slate-300 nav-active"><i class="fas fa-users text-lg"></i><span class="text-[9px] font-black mt-1">العملاء</span></button>
+        <button onclick="switchTab('transactions')" id="nav-transactions" class="nav-btn flex flex-col items-center text-slate-300"><i class="fas fa-cash-register text-lg"></i><span class="text-[9px] font-black mt-1">عملية</span></button>
+        <button onclick="switchTab('reports')" id="nav-reports" class="nav-btn flex flex-col items-center text-slate-300"><i class="fas fa-chart-pie text-lg"></i><span class="text-[9px] font-black mt-1">التقارير</span></button>
+        <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center text-slate-300"><i class="fas fa-user-gear text-lg"></i><span class="text-[9px] font-black mt-1">النظام</span></button>
+        <button onclick="switchTab('contact')" id="nav-contact" class="nav-btn flex flex-col items-center text-slate-300"><i class="fas fa-headset text-lg"></i><span class="text-[9px] font-black mt-1">تواصل</span></button>
+    </nav>
+
+    <div id="custModal" class="modal no-print">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl relative border-t-8 border-blue-600">
+            <h3 id="modalTitle" class="text-xl font-black mb-6">بيانات العميل</h3>
+            <div class="space-y-4">
+                <input type="hidden" id="editCustId">
+                <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 mr-2 uppercase">الاسم الكامل</label><input type="text" id="custName" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold"></div>
+                <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 mr-2 uppercase">رقم الهاتف (966...)</label><input type="text" id="custPhone" class="w-full p-4 bg-slate-50 rounded-2xl border font-bold"></div>
+                <div id="initRow" class="grid grid-cols-2 gap-3 pt-2">
+                    <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 mr-2 uppercase">المبلغ الأول</label><input type="number" id="custInitAmount" class="w-full p-4 bg-slate-50 rounded-2xl font-black text-center text-xl outline-none"></div>
+                    <div class="space-y-1"><label class="text-[10px] font-black text-slate-400 mr-2 uppercase">النوع</label><select id="custInitType" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-xs"><option value="credit">له (+)</option><option value="debt">عليه (-)</option></select></div>
+                </div>
+                <div class="flex gap-3 pt-6">
+                    <button onclick="saveCustomer()" class="flex-1 bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg">حفظ</button>
+                    <button onclick="closeModal('custModal')" class="px-8 bg-slate-100 text-slate-400 font-bold rounded-2xl">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // تهيئة EmailJS
+    (function() {
+        emailjs.init("YvlrwVwbzx9JFKvl");
+    })();
+
+    let users = JSON.parse(localStorage.getItem('elite_users_v43')) || [];
+    let currentUser = JSON.parse(sessionStorage.getItem('active_elite_user')) || null;
+    let customers = [], transactions = [], currencies = [], currentType = 'deposit';
+
+    window.onload = () => { if(currentUser) { reloadUserData(); showApp(); } };
+
+    function showToast(msg, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.style.background = type === 'success' ? '#10b981' : (type === 'danger' ? '#ef4444' : '#2563eb');
+        toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':(type==='danger'?'fa-exclamation-triangle':'fa-info-circle')}"></i> <span class="text-xs font-black">${msg}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    function toggleAuth(target) {
+        ['loginBox', 'signUpBox', 'forgotBox'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        document.getElementById(target + 'Box').classList.remove('hidden');
+    }
+
+    function handleSignUp() {
+        const n = document.getElementById('regName').value, e = document.getElementById('regEmail').value.toLowerCase(), p = document.getElementById('regPass').value;
+        if(n && e && p) {
+            if(users.find(u => u.email === e)) return showToast('مسجل مسبقاً!', 'danger');
+            users.push({ name: n, email: e, pass: p, phone: "", currencies: ['ريال سعودي', 'دولار'], data: { customers: [], transactions: [] } });
+            saveUsers(); showToast('تم الحفظ سحابياً', 'success'); toggleAuth('login');
+        } else showToast('أكمل البيانات', 'danger');
+    }
+
+    function handleLogin() {
+        const e = document.getElementById('loginEmail').value.toLowerCase(), p = document.getElementById('loginPass').value;
+        const user = users.find(u => u.email === e && u.pass === p);
+        if(user) { currentUser = user; sessionStorage.setItem('active_elite_user', JSON.stringify(user)); reloadUserData(); showApp(); showToast(`مرحباً ${currentUser.name}`); }
+        else showToast('خطأ في الدخول', 'danger');
+    }
+
+    function resetPassword() {
+        const e = document.getElementById('forgotEmail').value.toLowerCase();
+        const user = users.find(u => u.email === e);
+        if(user) {
+            showToast('جاري الإرسال...');
+            emailjs.send('service_0txugpy', 'template_hryvf94', { to_name: user.name, to_email: user.email, message: user.pass })
+            .then(() => { showToast('تم الإرسال لبريدك'); toggleAuth('login'); }, () => alert(`رمزك هو: ${user.pass}`));
+        } else showToast('غير موجود', 'danger');
+    }
+
+    function reloadUserData() {
+        customers = currentUser.data.customers || [];
+        transactions = currentUser.data.transactions || [];
+        currencies = currentUser.currencies || ['ريال سعودي', 'دولار'];
+    }
+
+    function showApp() {
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        fillProfile(); renderCustomers(); renderCurOptions(); runDetailedReport();
+    }
+
+    function fillProfile() {
+        document.getElementById('setUserName').value = currentUser.name;
+        document.getElementById('setUserPhone').value = currentUser.phone || '';
+        document.getElementById('setUserEmail').value = currentUser.email;
+    }
+
+    function updateUserProfile() {
+        currentUser.name = document.getElementById('setUserName').value;
+        currentUser.phone = document.getElementById('setUserPhone').value;
+        currentUser.email = document.getElementById('setUserEmail').value;
+        const newPass = document.getElementById('setUserPass').value;
+        if(newPass) currentUser.pass = newPass;
+        save(); showToast('تم التحديث');
+    }
+
+    function renderCustomers() {
+        const q = document.getElementById('searchCust').value.toLowerCase();
+        const body = document.getElementById('customerTableBody');
+        const tSel = document.getElementById('transTarget'), rSel = document.getElementById('reportCust');
+        body.innerHTML = ''; tSel.innerHTML = ''; rSel.innerHTML = '<option value="all">كافة العملاء</option>';
+        customers.filter(c => c.name.toLowerCase().includes(q)).forEach(c => {
+            const b = getBal(c.id, currencies[0]);
+            body.innerHTML += `<tr class="${b>0?'row-positive':(b<0?'row-negative':'')}">
+                <td class="px-4 py-4"><input type="checkbox" class="cust-check w-5" value="${c.id}" onclick="updateDeleteBtn()"></td>
+                <td class="px-4 py-4 font-black">${c.name}</td>
+                <td class="px-4 py-4 ${b>=0?'text-emerald-600':'text-red-500'}">${Math.abs(b).toLocaleString()}</td>
+                <td class="px-4 py-4 text-center">
+                    <button onclick="openModal('custModal', ${c.id})" class="text-blue-500 mx-1"><i class="fas fa-edit"></i></button>
+                    <button onclick="delCust(${c.id})" class="text-red-300 mx-1"><i class="fas fa-trash"></i></button>
+                </td></tr>`;
+            tSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            rSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
+    }
+
+    function toggleSelectAll() {
+        const master = document.getElementById('selectAll').checked;
+        document.querySelectorAll('.cust-check').forEach(c => c.checked = master);
+        updateDeleteBtn();
+    }
+
+    function updateDeleteBtn() {
+        document.getElementById('multiDeleteBtn').classList.toggle('hidden', document.querySelectorAll('.cust-check:checked').length === 0);
+    }
+
+    function deleteSelected() {
+        if(confirm('حذف المحددين؟')) {
+            const ids = Array.from(document.querySelectorAll('.cust-check:checked')).map(c => parseInt(c.value));
+            customers = customers.filter(c => !ids.includes(c.id));
+            transactions = transactions.filter(t => !ids.includes(t.custId));
+            save(); renderCustomers(); updateDeleteBtn();
+        }
+    }
+
+    function processTransaction() {
+        const id = parseInt(document.getElementById('transTarget').value), amt = parseFloat(document.getElementById('transAmount').value), cur = document.getElementById('transCurrency').value, note = document.getElementById('transNote').value;
+        if(!id || !amt) return showToast('أدخل المبلغ', 'danger');
+        transactions.push({ id: Date.now(), custId: id, amount: currentType==='deposit'?amt:-amt, cur, note: note || 'عملية نقدية', date: new Date().toLocaleDateString('en-US'), arDate: new Date().toLocaleDateString('ar-SA') });
+        save(); renderCustomers(); runDetailedReport(); showToast('تم الحفظ');
+        document.getElementById('transAmount').value = '';
+    }
+
+    function runDetailedReport() {
+        const cid = document.getElementById('reportCust').value, range = document.getElementById('reportMonth').value, type = document.getElementById('reportType').value;
+        const display = document.getElementById('reportDisplay'), today = new Date().toLocaleDateString('en-US');
+        
+        let filtered = transactions.filter(t => {
+            const matchesCust = cid === 'all' || t.custId == cid;
+            const matchesType = type === 'all' || (type === 'deposit' ? t.amount > 0 : t.amount < 0);
+            return matchesCust && matchesType;
+        }).reverse();
+
+        display.innerHTML = filtered.map(t => {
+            const c = customers.find(x => x.id === t.custId);
+            return `<div class="p-4 rounded-xl flex justify-between items-center shadow-sm mb-2 ${t.amount>0?'bg-emerald-50':'bg-red-50'}">
+                <div class="flex items-center gap-3">
+                    <button onclick="sendWA(${c.id}, ${t.id})" class="text-emerald-500"><i class="fab fa-whatsapp"></i></button>
+                    <div><p class="font-black text-xs">${c?c.name:'محذوف'} - ${t.note}</p></div>
+                </div>
+                <p class="font-black ${t.amount>0?'text-emerald-600':'text-red-600'}">${t.amount.toLocaleString()}</p>
+            </div>`;
+        }).join('');
+    }
+
+    function save() {
+        if(!currentUser) return;
+        currentUser.data = { customers, transactions };
+        const idx = users.findIndex(u => u.email === currentUser.email);
+        if(idx !== -1) users[idx] = currentUser;
+        saveUsers();
+        sessionStorage.setItem('active_elite_user', JSON.stringify(currentUser));
+    }
+
+    function saveUsers() { localStorage.setItem('elite_users_v43', JSON.stringify(users)); }
+
+    function restoreLastBackup() {
+        const last = localStorage.getItem(`last_backup_${currentUser.email}`);
+        if(last) { currentUser.data = JSON.parse(last); save(); location.reload(); }
+        else showToast('لا يوجد نسخة', 'danger');
+    }
+
+    function sendWA(custId, transId) {
+        const c = customers.find(x => x.id === custId), t = transactions.find(x => x.id === transId);
+        if(!c.phone) return showToast('لا يوجد هاتف', 'danger');
+        window.open(`https://wa.me/${c.phone}?text=${encodeURIComponent(`إشعار مالي: ${t.amount} ${t.cur}\nالبيان: ${t.note}`)}`, '_blank');
+    }
+
+    function getBal(cid, cur) { return transactions.filter(t => t.custId === cid && t.cur === cur).reduce((s, t) => s + t.amount, 0); }
+    function setTransType(t) { currentType = t; document.getElementById('typeDep').className = t==='deposit'?'p-4 rounded-xl bg-emerald-50 text-emerald-600 font-black border-2 border-emerald-500':'p-4 bg-slate-50 rounded-xl'; document.getElementById('typeWith').className = t==='withdraw'?'p-4 rounded-xl bg-red-50 text-red-600 font-black border-2 border-red-500':'p-4 bg-slate-50 rounded-xl'; }
+    function switchTab(t) { document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('nav-active')); document.getElementById('nav-'+t).classList.add('nav-active'); }
+    function openModal(id, cid=null) { document.getElementById(id).classList.add('active'); if(cid) { const c=customers.find(x=>x.id===cid); document.getElementById('editCustId').value=c.id; document.getElementById('custName').value=c.name; document.getElementById('custPhone').value=c.phone||''; document.getElementById('initRow').classList.add('hidden'); } else { document.getElementById('editCustId').value=''; document.getElementById('custName').value=''; document.getElementById('initRow').classList.remove('hidden'); } }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function saveCustomer() { const id=document.getElementById('editCustId').value, n=document.getElementById('custName').value, p=document.getElementById('custPhone').value; if(!n) return; if(id) { const idx=customers.findIndex(x=>x.id==id); customers[idx].name=n; customers[idx].phone=p; } else { const newId=Date.now(); customers.push({id:newId, name:n, phone:p}); } save(); renderCustomers(); closeModal('custModal'); showToast('تم الحفظ'); }
+    function renderCurOptions() { document.getElementById('transCurrency').innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join(''); }
+    function logout() { sessionStorage.clear(); location.reload(); }
+    function delCust(id) { if(confirm('حذف؟')) { customers=customers.filter(c=>c.id!==id); save(); renderCustomers(); } }
+</script>
+</body>
+</html>
                 </div>
             </div>
             <div class="card-premium overflow-hidden no-print">
