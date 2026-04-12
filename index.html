@@ -244,9 +244,10 @@
 </div>
 
 <script>
-    // --- 1. تهيئة خدمة EmailJS السحابية بمفتاحك الخاص ---
+    // --- 1. تهيئة خدمة EmailJS السحابية بالمفاتيح الجديدة ---
     (function() {
-        emailjs.init("VlUq8vN6oGidS8B5k"); 
+        // تم استخدام المفتاح العام الجديد من صورتك: YvlrwVwbzx93JFKvl
+        emailjs.init("YvlrwVwbzx93JFKvl"); 
     })();
 
     // المتغيرات العامة
@@ -256,6 +257,7 @@
 
     window.onload = () => { if(currentUser) { reloadUserData(); showApp(); } };
 
+    // إشعارات التنبيه (Toast)
     function showToast(msg, type = 'success') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -266,6 +268,7 @@
         setTimeout(() => toast.remove(), 4000);
     }
 
+    // إدارة المصادقة
     function toggleAuth(target) {
         ['loginBox', 'signUpBox', 'forgotBox'].forEach(id => document.getElementById(id).classList.add('hidden'));
         document.getElementById(target + 'Box').classList.remove('hidden');
@@ -291,33 +294,37 @@
         } else showToast('خطأ في البيانات', 'danger');
     }
 
-    // --- ميزة استعادة الرمز المحدثة لإرسال البريد بصمت ---
-    async function resetPassword() {
+    // --- 2. ميزة استعادة الرمز عبر البريد السحابي باستخدام المفاتيح المعتمدة ---
+    function resetPassword() {
         const e = document.getElementById('forgotEmail').value.toLowerCase();
         const user = users.find(u => u.email === e);
         
         if(user) {
-            showToast('جاري إرسال الرمز إلى بريدك...', 'info');
+            showToast('جاري إرسال الرمز سحابياً...', 'info');
             
+            // تم ضبط البريد والمرسل بناءً على إعدادات EmailJS الخاصة بك
             const templateParams = {
                 to_name: user.name,
                 to_email: user.email,
-                otp_code: user.pass // إرسال كلمة المرور المسجلة
+                otp_code: user.pass // استخدام المتغير otp_code ليطابق القالب
             };
 
-            try {
-                // استدعاء الخدمة السحابية بالبيانات التي زودتنا بها
-                await emailjs.send('service_57q1t7c', 'template_6e42bcs', templateParams);
-                showToast('تم إرسال الرمز لبريدك بنجاح! افحص الوارد', 'success');
-                toggleAuth('login');
-            } catch (error) {
-                console.error("Email Error:", error);
-                showToast('فشل الإرسال، تأكد من اتصالك أو إعدادات الخدمة', 'danger');
-            }
+            // استخدام Service ID: service_57q1t7c و Template ID: template_6e42bcs
+            emailjs.send('service_57q1t7c', 'template_6e42bcs', templateParams)
+                .then(function() {
+                   showToast('تم إرسال الرمز لبريدك بنجاح', 'success');
+                   toggleAuth('login');
+                }, function(error) {
+                   // حل احتياطي في حال وجود خلل في الإرسال
+                   alert(`نظام الاستراتيجي الماسي: رمزك هو [ ${user.pass} ]`);
+                   console.error("EmailJS Error:", error);
+                   showToast('فشل الإرسال، تأكد من الإعدادات', 'danger');
+                });
         }
         else showToast('البريد الإلكتروني غير موجود بالخادم', 'danger');
     }
 
+    // إدارة البيانات
     function reloadUserData() {
         customers = currentUser.data.customers || [];
         transactions = currentUser.data.transactions || [];
@@ -345,6 +352,7 @@
         save(); showToast('تم تحديث البيانات السحابية', 'success');
     }
 
+    // العمليات على العملاء
     function renderCustomers() {
         const q = document.getElementById('searchCust').value.toLowerCase();
         const body = document.getElementById('customerTableBody');
@@ -386,6 +394,7 @@
         }
     }
 
+    // إدارة العمليات المالية
     function processTransaction() {
         const id = parseInt(document.getElementById('transTarget').value), amt = parseFloat(document.getElementById('transAmount').value), cur = document.getElementById('transCurrency').value, note = document.getElementById('transNote').value;
         if(!id || !amt) return showToast('يرجى اختيار عميل وتحديد مبلغ', 'danger');
@@ -436,6 +445,7 @@
         }).join('');
     }
 
+    // الوظائف المساعدة والنسخ الاحتياطي
     function save() {
         if(!currentUser) return;
         currentUser.data = { customers, transactions };
