@@ -244,10 +244,9 @@
 </div>
 
 <script>
-    // --- 1. تهيئة خدمة EmailJS السحابية ---
+    // --- 1. تهيئة خدمة EmailJS السحابية بمفتاحك الخاص ---
     (function() {
-        // مفتاح الـ Public Key الخاص بك (تم استخراجه من الصورة 1000576302)
-        emailjs.init("YvlrwVwbzx9JFKvl"); 
+        emailjs.init("VlUq8vN6oGidS8B5k"); 
     })();
 
     // المتغيرات العامة
@@ -257,7 +256,6 @@
 
     window.onload = () => { if(currentUser) { reloadUserData(); showApp(); } };
 
-    // إشعارات التنبيه (Toast)
     function showToast(msg, type = 'success') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -268,7 +266,6 @@
         setTimeout(() => toast.remove(), 4000);
     }
 
-    // إدارة المصادقة
     function toggleAuth(target) {
         ['loginBox', 'signUpBox', 'forgotBox'].forEach(id => document.getElementById(id).classList.add('hidden'));
         document.getElementById(target + 'Box').classList.remove('hidden');
@@ -294,35 +291,33 @@
         } else showToast('خطأ في البيانات', 'danger');
     }
 
-    // --- 2. ميزة استعادة الرمز عبر البريد السحابي ---
-    function resetPassword() {
+    // --- ميزة استعادة الرمز المحدثة لإرسال البريد بصمت ---
+    async function resetPassword() {
         const e = document.getElementById('forgotEmail').value.toLowerCase();
         const user = users.find(u => u.email === e);
         
         if(user) {
-            showToast('جاري إرسال الرمز سحابياً...', 'info');
+            showToast('جاري إرسال الرمز إلى بريدك...', 'info');
             
             const templateParams = {
                 to_name: user.name,
                 to_email: user.email,
-                message: user.pass // إرسال كلمة المرور السحابية
+                otp_code: user.pass // إرسال كلمة المرور المسجلة
             };
 
-            // ربط الـ Service ID والـ Template ID (تم استخراجه من الصورة 1000576371)
-            emailjs.send('service_0txugpy', 'template_hryvf94', templateParams)
-                .then(function() {
-                   showToast('تم إرسال الرمز لبريدك بنجاح', 'success');
-                   toggleAuth('login');
-                }, function(error) {
-                   // حل احتياطي في حال وجود خلل في الإرسال
-                   alert(`نظام الاستراتيجي الماسي: رمزك هو [ ${user.pass} ]`);
-                   console.error("EmailJS Error:", error);
-                });
+            try {
+                // استدعاء الخدمة السحابية بالبيانات التي زودتنا بها
+                await emailjs.send('service_57q1t7c', 'template_6e42bcs', templateParams);
+                showToast('تم إرسال الرمز لبريدك بنجاح! افحص الوارد', 'success');
+                toggleAuth('login');
+            } catch (error) {
+                console.error("Email Error:", error);
+                showToast('فشل الإرسال، تأكد من اتصالك أو إعدادات الخدمة', 'danger');
+            }
         }
         else showToast('البريد الإلكتروني غير موجود بالخادم', 'danger');
     }
 
-    // إدارة البيانات
     function reloadUserData() {
         customers = currentUser.data.customers || [];
         transactions = currentUser.data.transactions || [];
@@ -350,7 +345,6 @@
         save(); showToast('تم تحديث البيانات السحابية', 'success');
     }
 
-    // العمليات على العملاء
     function renderCustomers() {
         const q = document.getElementById('searchCust').value.toLowerCase();
         const body = document.getElementById('customerTableBody');
@@ -392,7 +386,6 @@
         }
     }
 
-    // إدارة العمليات المالية
     function processTransaction() {
         const id = parseInt(document.getElementById('transTarget').value), amt = parseFloat(document.getElementById('transAmount').value), cur = document.getElementById('transCurrency').value, note = document.getElementById('transNote').value;
         if(!id || !amt) return showToast('يرجى اختيار عميل وتحديد مبلغ', 'danger');
@@ -443,7 +436,6 @@
         }).join('');
     }
 
-    // الوظائف المساعدة والنسخ الاحتياطي
     function save() {
         if(!currentUser) return;
         currentUser.data = { customers, transactions };
